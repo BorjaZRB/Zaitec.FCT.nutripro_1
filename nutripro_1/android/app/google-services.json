@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "373439335357",
+    "project_id": "zaitecfctnutripro1",
+    "storage_bucket": "zaitecfctnutripro1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:373439335357:android:f28fd3a1a137c37620e0d4",
+        "android_client_info": {
+          "package_name": "com.example.nutripro_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOE_MRr9zpWIjRivETJ2Wzp443wPF7KSg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
