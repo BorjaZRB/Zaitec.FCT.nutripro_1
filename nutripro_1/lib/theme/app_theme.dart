@@ -10,16 +10,14 @@ final ColorScheme _lightScheme = ColorScheme(
   onSecondary: Colors.black,
   error: AppColors.error,
   onError: Colors.white,
-  background: AppColors.background,
-  onBackground: AppColors.textPrimary,
-  surface: AppColors.surface,
+  surface: AppColors.background,
   onSurface: AppColors.textPrimary,
 );
 
 final ThemeData appThemeLight = ThemeData(
   useMaterial3: true,
   colorScheme: _lightScheme,
-  scaffoldBackgroundColor: _lightScheme.background,
+  scaffoldBackgroundColor: _lightScheme.surface,
   textTheme: AppTypography.textTheme,
 
   appBarTheme: AppBarTheme(
