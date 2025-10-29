@@ -11,7 +11,7 @@ class App extends StatelessWidget {
       title: 'Nutripro',
       theme: appThemeLight, // 👈 tema global
       debugShowCheckedModeBanner: false,
-      home: const LoginPage(), // 👈 Mostrando LoginPage temporalmente
+      home: const LoginPage(), // 👈 Mostrando LoginPage como inicio
     );
   }
 }
