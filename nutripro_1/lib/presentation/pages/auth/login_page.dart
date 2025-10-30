@@ -257,11 +257,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildPrivacyPolicy() {
     final theme = Theme.of(context);
     
-    return Text(
-      'Política de privacidad | cookies',
-      style: TextStyle(
-        color: theme.colorScheme.onSurface.withOpacity(0.6),
-        fontSize: 12,
+    return Center(
+      child: Text(
+        'Política de privacidad | cookies',
+        style: TextStyle(
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
+          fontSize: 12,
+        ),
       ),
     );
   }
