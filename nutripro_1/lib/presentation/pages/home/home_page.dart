@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
 
-    // Navegar al login eliminando historial
+    // ir al login 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
@@ -25,7 +25,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio'),
-        // Botón logout arriba a la derecha
+        // Botón logout 
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
