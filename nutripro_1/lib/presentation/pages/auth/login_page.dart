@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'register_page.dart';
 
@@ -15,9 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
 
-  // Color constante para todos los bordes
-  static final Color _borderColor = Colors.orange.shade300;
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -27,8 +26,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -43,27 +44,22 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Spacer(),
                   
-                  // Logo centrado
                   _buildHeader(),
                   
                   const SizedBox(height: 48),
                   
-                  // Formulario en contenedor
                   _buildFormContainer(),
                   
                   const SizedBox(height: 16),
                   
-                  // Enlace olvidé contraseña
                   _buildForgotPasswordLink(),
                   
                   const SizedBox(height: 8),
                   
-                  // Enlace a registro
                   _buildRegisterLink(),
                   
                   const Spacer(),
                   
-                  // Política de privacidad
                   _buildPrivacyPolicy(),
                   
                   const SizedBox(height: 16),
@@ -88,12 +84,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildFormContainer() {
+    final theme = Theme.of(context);
+    
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        border: Border.all(color: _borderColor, width: 2),
+        border: Border.all(color: theme.colorScheme.secondary, width: 2),
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
+        color: theme.colorScheme.surface,
       ),
       child: Form(
         key: _formKey,
@@ -112,6 +110,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildEmailField() {
+    final theme = Theme.of(context);
+
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
@@ -119,29 +119,9 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'Email',
-        prefixIcon: const Icon(Icons.email_outlined),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
+        prefixIcon: Icon(Icons.email_outlined, color: theme.colorScheme.primary),
       ),
+      style: TextStyle(color: theme.colorScheme.onSurface),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa tu email';
@@ -155,6 +135,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildPasswordField() {
+    final theme = Theme.of(context);
+
     return TextFormField(
       controller: _passwordController,
       obscureText: !_isPasswordVisible,
@@ -162,34 +144,14 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         labelText: 'Contraseña',
         hintText: 'Contraseña',
-        prefixIcon: const Icon(Icons.lock_outline),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: _borderColor, width: 2),
-        ),
+        prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary),
         suffixIcon: Padding(
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
             icon: Icon(
               _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
               size: 20,
+              color: theme.colorScheme.primary,
             ),
             onPressed: () {
               setState(() {
@@ -200,6 +162,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+      style: TextStyle(color: theme.colorScheme.onSurface),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa tu contraseña';
@@ -214,11 +177,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildLoginButton() {
+    final theme = Theme.of(context);
+    
     return ElevatedButton(
       onPressed: _isLoading ? null : _handleLogin,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: theme.colorScheme.onPrimary,
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -233,6 +198,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildForgotPasswordLink() {
+    final theme = Theme.of(context);
+    
     return Center(
       child: TextButton(
         onPressed: () {
@@ -243,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Text(
           '¿Olvidaste tu contraseña?',
           style: TextStyle(
-            color: Colors.grey.shade600,
+            color: theme.colorScheme.onSurface.withOpacity(0.7),
             decoration: TextDecoration.underline,
           ),
         ),
@@ -252,6 +219,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildRegisterLink() {
+    final theme = Theme.of(context);
+    
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -259,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
           Text(
             '¿No tienes cuenta? ',
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
               fontSize: 14,
             ),
           ),
@@ -270,10 +239,10 @@ class _LoginPageState extends State<LoginPage> {
                 MaterialPageRoute(builder: (context) => const RegisterPage()),
               );
             },
-            child: const Text(
+            child: Text(
               'Regístrate',
               style: TextStyle(
-                color: Colors.orange,
+                color: theme.colorScheme.secondary,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
@@ -286,11 +255,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildPrivacyPolicy() {
+    final theme = Theme.of(context);
+    
     return Center(
       child: Text(
         'Política de privacidad | cookies',
         style: TextStyle(
-          color: Colors.grey.shade600,
+          color: theme.colorScheme.onSurface.withOpacity(0.6),
           fontSize: 12,
         ),
       ),
