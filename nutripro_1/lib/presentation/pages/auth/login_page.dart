@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'register_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nutripro_1/presentation/pages/home/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
@@ -35,33 +37,35 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                         MediaQuery.of(context).padding.top - 
-                         MediaQuery.of(context).padding.bottom - 48,
+              minHeight:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  48,
             ),
             child: IntrinsicHeight(
               child: Column(
                 children: [
                   const Spacer(),
-                  
+
                   _buildHeader(),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   _buildFormContainer(),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   _buildForgotPasswordLink(),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   _buildRegisterLink(),
-                  
+
                   const Spacer(),
-                  
+
                   _buildPrivacyPolicy(),
-                  
+
                   const SizedBox(height: 16),
                 ],
               ),
@@ -85,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildFormContainer() {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -119,7 +123,10 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'Email',
-        prefixIcon: Icon(Icons.email_outlined, color: theme.colorScheme.primary),
+        prefixIcon: Icon(
+          Icons.email_outlined,
+          color: theme.colorScheme.primary,
+        ),
       ),
       style: TextStyle(color: theme.colorScheme.onSurface),
       validator: (value) {
@@ -178,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLoginButton() {
     final theme = Theme.of(context);
-    
+
     return ElevatedButton(
       onPressed: _isLoading ? null : _handleLogin,
       style: ElevatedButton.styleFrom(
@@ -191,22 +198,49 @@ class _LoginPageState extends State<LoginPage> {
           ? const SizedBox(
               height: 20,
               width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
             )
-          : const Text('Iniciar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          : const Text(
+              'Iniciar sesión',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
     );
   }
 
   Widget _buildForgotPasswordLink() {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: TextButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Funcionalidad pendiente')),
-          );
+        onPressed: () async {
+          final email = _emailController.text.trim();
+          if (email.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Escribe tu email para enviar el enlace.'),
+              ),
+            );
+            return;
+          }
+          try {
+            await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Te enviamos un correo para restablecer.'),
+              ),
+            );
+          } on FirebaseAuthException catch (e) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(_authErrorText(e))));
+          }
         },
+
         child: Text(
           '¿Olvidaste tu contraseña?',
           style: TextStyle(
@@ -220,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildRegisterLink() {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -256,7 +290,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildPrivacyPolicy() {
     final theme = Theme.of(context);
-    
+
     return Center(
       child: Text(
         'Política de privacidad | cookies',
@@ -274,23 +308,50 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login exitoso (simulado)')),
-        );
-      }
+      final email = _emailController.text.trim();
+      final pass = _passwordController.text.trim();
+
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+
+      if (!mounted) return;
+
+      // Navega a Home (ajústalo a tu flujo)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      final msg = _authErrorText(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error inesperado: $e')));
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Mensajes legibles para errores comunes de Firebase Auth
+  String _authErrorText(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'Email inválido.';
+      case 'user-disabled':
+        return 'La cuenta está deshabilitada.';
+      case 'user-not-found':
+        return 'Usuario no encontrado.';
+      case 'wrong-password':
+        return 'Contraseña incorrecta.';
+      case 'too-many-requests':
+        return 'Demasiados intentos, espera un momento.';
+      default:
+        return 'No se pudo iniciar sesión (${e.code}).';
     }
   }
 }
