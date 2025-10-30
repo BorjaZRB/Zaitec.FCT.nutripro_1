@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -37,29 +38,31 @@ class _RegisterPageState extends State<RegisterPage> {
           padding: const EdgeInsets.all(24.0),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                         MediaQuery.of(context).padding.top - 
-                         MediaQuery.of(context).padding.bottom - 48,
+              minHeight:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  48,
             ),
             child: IntrinsicHeight(
               child: Column(
                 children: [
                   const Spacer(),
-                  
+
                   _buildHeader(),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   _buildFormContainer(),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   _buildLoginLink(),
-                  
+
                   const Spacer(),
-                  
+
                   _buildPrivacyPolicy(),
-                  
+
                   const SizedBox(height: 16),
                 ],
               ),
@@ -119,8 +122,14 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'Email',
-        prefixIcon: Icon(Icons.email_outlined, color: theme.colorScheme.primary),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        prefixIcon: Icon(
+          Icons.email_outlined,
+          color: theme.colorScheme.primary,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -189,7 +198,9 @@ class _RegisterPageState extends State<RegisterPage> {
           padding: const EdgeInsets.only(right: 8),
           child: IconButton(
             icon: Icon(
-              _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              _isConfirmPasswordVisible
+                  ? Icons.visibility
+                  : Icons.visibility_off,
               size: 20,
               color: theme.colorScheme.primary,
             ),
@@ -223,7 +234,10 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Text('Registrarse', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          : const Text(
+              'Registrarse',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
     );
   }
 
@@ -275,23 +289,58 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _handleRegister() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+    if (!_formKey.currentState!.validate()) return;
 
-      await Future.delayed(const Duration(seconds: 2));
+    setState(() => _isLoading = true);
+
+    try {
+      final email = _emailController.text.trim();
+      final pass = _passwordController.text.trim();
+
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+
+      // (Opcional) verificación por correo:
+      // await FirebaseAuth.instance.currentUser?.sendEmailVerification();
 
       if (!mounted) return;
 
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Aquí iría la lógica de registro real
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registro exitoso!')),
+        const SnackBar(content: Text('Registro completado. ¡Bienvenido!')),
       );
+
+      // Vuelve al login o navega a Home, como prefieras:
+      Navigator.pop(context);
+      // O:
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      final msg = _signUpErrorText(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error inesperado: $e')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  String _signUpErrorText(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        return 'Ese email ya está registrado.';
+      case 'invalid-email':
+        return 'Email inválido.';
+      case 'operation-not-allowed':
+        return 'Este método de registro no está habilitado.';
+      case 'weak-password':
+        return 'La contraseña es demasiado débil.';
+      default:
+        return 'No se pudo registrar (${e.code}).';
     }
   }
 }
