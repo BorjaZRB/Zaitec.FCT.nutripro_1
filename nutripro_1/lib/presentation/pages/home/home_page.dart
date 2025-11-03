@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/presentation/pages/auth/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../../../data/providers/theme_provider.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -31,6 +33,16 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
             onPressed: () => _logout(context),
+          ),
+          Builder(
+            builder: (ctx) {
+              final isDark = ctx.watch<ThemeProvider>().isDarkMode;
+              return IconButton(
+                icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+                tooltip: isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro',
+                onPressed: () => ctx.read<ThemeProvider>().toggleTheme(),
+              );
+            },
           ),
         ],
       ),
