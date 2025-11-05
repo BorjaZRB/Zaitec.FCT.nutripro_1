@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null; }
+    // Estructura: images/{uid}/{recipeId}/{fileName}
+    match /images/{uid}/{recipeId}/{fileName} {
+      allow read: if true;                     // o restrínge si lo prefieres
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+    // Bloquea todo lo demás
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
