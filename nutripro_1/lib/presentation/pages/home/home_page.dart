@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../data/providers/theme_provider.dart';
 import '../config/conf_page.dart';
 import '../profile/profile_page.dart';
+import 'package:nutripro_1/services/notification_service.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -13,7 +14,7 @@ class HomePage extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
 
-    // ir al login 
+    // ir al login
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
@@ -33,11 +34,7 @@ class HomePage extends StatelessWidget {
           children: [
             DrawerHeader(
               child: Center(
-                child: Image.asset(
-                  imagePath,
-                  width: 200,
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset(imagePath, width: 200, fit: BoxFit.contain),
               ),
             ),
             ListTile(
@@ -47,9 +44,7 @@ class HomePage extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfilePage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
                 );
               },
             ),
@@ -60,9 +55,24 @@ class HomePage extends StatelessWidget {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const ConfigPage(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const ConfigPage()),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Probar Notificación'),
+              leading: const Icon(Icons.notification_add_outlined),
+              onTap: () async {
+                // Cerramos el menú
+                Navigator.pop(context);
+
+                // Mostramos la notificación
+                final NotificationService notificationService =
+                    NotificationService();
+
+                await notificationService.showNotification(
+                  '¡Prueba de Notificación!',
+                  '¡Genial! La Tarea MSG-002 funciona.',
                 );
               },
             ),
@@ -70,14 +80,9 @@ class HomePage extends StatelessWidget {
             ListTile(
               title: Text(
                 'Cerrar sesión',
-                style: TextStyle(
-                  color: theme.colorScheme.error,
-                ),
+                style: TextStyle(color: theme.colorScheme.error),
               ),
-              leading: Icon(
-                Icons.logout,
-                color: theme.colorScheme.error,
-              ),
+              leading: Icon(Icons.logout, color: theme.colorScheme.error),
               onTap: () => _logout(context),
             ),
             const SizedBox(height: 20),
@@ -96,10 +101,7 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: Text(
           'home',
-          style: TextStyle(
-            fontSize: 24,
-            color: theme.colorScheme.onSurface,
-          ),
+          style: TextStyle(fontSize: 24, color: theme.colorScheme.onSurface),
         ),
       ),
     );

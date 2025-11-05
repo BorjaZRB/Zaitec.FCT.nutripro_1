@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/firebase_options.dart';
 import 'presentation/app.dart';
+import 'services/notification_service.dart';
 
 Future<void> _connectToEmulators() async {
   // En Android Emulator, 'localhost' del PC es 10.0.2.2
@@ -32,5 +33,8 @@ Future<void> main() async {
     await _connectToEmulators();
   }
 
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final NotificationService notificationService = NotificationService();
+  await notificationService.init();
   runApp(const App());
 }
