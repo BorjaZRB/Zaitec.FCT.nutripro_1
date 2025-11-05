@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../../../data/providers/theme_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -74,9 +76,12 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _buildHeader() {
+    final imagePath = context.watch<ThemeProvider>().isDarkMode
+        ? 'assets/images/NutriProDark.png'
+        : 'assets/images/NutriPro.png';
     return Center(
       child: Image.asset(
-        'assets/images/NutriPro.png',
+        imagePath,
         width: 500,
         height: 240,
         fit: BoxFit.contain,

@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/presentation/pages/auth/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../../../data/providers/theme_provider.dart';
-
+import '../config/conf_page.dart';
+import '../profile/profile_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -23,28 +23,75 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final imagePath = context.watch<ThemeProvider>().isDarkMode
+        ? 'assets/images/NutriProDark.png'
+        : 'assets/images/NutriPro.png';
 
     return Scaffold(
+      drawer: Drawer(
+        child: Column(
+          children: [
+            DrawerHeader(
+              child: Center(
+                child: Image.asset(
+                  imagePath,
+                  width: 200,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            ListTile(
+              title: const Text('Perfil'),
+              leading: const Icon(Icons.person),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfilePage(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Configuración'),
+              leading: const Icon(Icons.settings),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ConfigPage(),
+                  ),
+                );
+              },
+            ),
+            const Spacer(),
+            ListTile(
+              title: Text(
+                'Cerrar sesión',
+                style: TextStyle(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+              leading: Icon(
+                Icons.logout,
+                color: theme.colorScheme.error,
+              ),
+              onTap: () => _logout(context),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         title: const Text('Inicio'),
-        // Botón logout 
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesión',
-            onPressed: () => _logout(context),
-          ),
-          Builder(
-            builder: (ctx) {
-              final isDark = ctx.watch<ThemeProvider>().isDarkMode;
-              return IconButton(
-                icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-                tooltip: isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro',
-                onPressed: () => ctx.read<ThemeProvider>().toggleTheme(),
-              );
-            },
-          ),
-        ],
       ),
       body: Center(
         child: Text(
