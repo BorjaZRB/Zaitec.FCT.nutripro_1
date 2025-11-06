@@ -50,11 +50,6 @@ class _LoginPageState extends State<LoginPage> {
                   // Formulario en contenedor
                   _buildFormContainer(),
                   
-                  const SizedBox(height: 16),
-                  
-                  // Enlace olvidé contraseña
-                  _buildForgotPasswordLink(),
-                  
                   const Spacer(),
                   
                   // Política de privacidad
@@ -223,25 +218,6 @@ class _LoginPageState extends State<LoginPage> {
               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             )
           : const Text('Iniciar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-    );
-  }
-
-  Widget _buildForgotPasswordLink() {
-    return Center(
-      child: TextButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Funcionalidad pendiente')),
-          );
-        },
-        child: Text(
-          '¿Olvidaste tu contraseña?',
-          style: TextStyle(
-            color: Colors.grey.shade600,
-            decoration: TextDecoration.underline,
-          ),
-        ),
-      ),
     );
   }
 
