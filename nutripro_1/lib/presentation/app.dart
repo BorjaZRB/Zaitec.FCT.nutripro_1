@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:nutripro_1/data/providers/auth_provider.dart';
+import 'package:nutripro_1/data/providers/recommendation_provider.dart';
+import 'package:nutripro_1/data/providers/tracking_provider.dart';
+import 'package:nutripro_1/data/providers/user_profile_provider.dart';
+import 'package:nutripro_1/presentation/pages/auth/auth_wrapper.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import 'pages/auth/login_page.dart';
 import '../data/providers/theme_provider.dart';
 
 class App extends StatelessWidget {
@@ -9,8 +13,18 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => TrackingProvider()),
+        ChangeNotifierProvider(create: (_) => RecommendationProvider()),
+        
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
+
+        Provider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
+      ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
@@ -18,8 +32,9 @@ class App extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: appThemeLight,
             darkTheme: appThemeDark,
-            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-            home: const LoginPage(),
+            themeMode:
+                themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const AuthWrapper(),
           );
         },
       ),

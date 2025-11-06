@@ -1,9 +1,8 @@
-// ignore_for_file: deprecated_member_use
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:nutripro_1/data/providers/auth_provider.dart';
+import 'package:nutripro_1/presentation/pages/auth/auth_wrapper.dart';
 import 'package:provider/provider.dart';
-import '../../../data/providers/theme_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -17,9 +16,56 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Las contraseñas no coinciden.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await context.read<AuthProvider>().register(
+            _emailController.text.trim(),
+            _passwordController.text.trim(),
+          );
+      
+      debugPrint('Registro exitoso');
+
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => const AuthWrapper(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
+    } catch (e) {
+      debugPrint('Error en registro: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al registrarse: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -32,40 +78,155 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight:
-                  MediaQuery.of(context).size.height -
-                  MediaQuery.of(context).padding.top -
-                  MediaQuery.of(context).padding.bottom -
-                  48,
-            ),
-            child: IntrinsicHeight(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Spacer(),
-
-                  _buildHeader(),
-
-                  const SizedBox(height: 48),
-
-                  _buildFormContainer(),
-
+                  Image.asset(
+                    isDark
+                        ? 'assets/images/NutriProDark.png'
+                        : 'assets/images/NutriPro.png',
+                    height: 250,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Crea tu cuenta',
+                    style: theme.textTheme.headlineMedium
+                        ?.copyWith(color: colorScheme.primary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  // --- Campo de Email ---
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Correo Electrónico',
+                      prefixIcon: Icon(Icons.email, color: colorScheme.primary),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.secondary),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: colorScheme.secondary, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null ||
+                          value.trim().isEmpty ||
+                          !value.contains('@')) {
+                        return 'Por favor, introduce un correo válido.';
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 16),
-
-                  _buildLoginLink(),
-
-                  const Spacer(),
-
-                  _buildPrivacyPolicy(),
-
+                  // --- Campo de Contraseña ---
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Contraseña',
+                      prefixIcon: Icon(Icons.lock, color: colorScheme.primary),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.secondary),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: colorScheme.secondary, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.trim().length < 6) {
+                        return 'La contraseña debe tener al menos 6 caracteres.';
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 16),
+                  // --- Campo de Confirmar Contraseña ---
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: InputDecoration(
+                      labelText: 'Confirmar Contraseña',
+                      prefixIcon:
+                          Icon(Icons.lock_outline, color: colorScheme.primary),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.secondary),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(color: colorScheme.secondary, width: 2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value != _passwordController.text) {
+                        return 'Las contraseñas no coinciden.';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  // --- Botón de Registro ---
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                          onPressed: _register,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Registrarse'),
+                        ),
+                  const SizedBox(height: 24),
+                  // --- Texto para Iniciar Sesión ---
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: colorScheme.onSurface),
+                        children: [
+                          const TextSpan(text: '¿Ya tienes cuenta? '),
+                          TextSpan(
+                            text: 'Inicia Sesión',
+                            style: TextStyle(
+                              color: colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (context) => const AuthWrapper(),
+                                  ),
+                                  (Route<dynamic> route) => false,
+                                );
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -73,279 +234,5 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
-  }
-
-  Widget _buildHeader() {
-    final imagePath = context.watch<ThemeProvider>().isDarkMode
-        ? 'assets/images/NutriProDark.png'
-        : 'assets/images/NutriPro.png';
-    return Center(
-      child: Image.asset(
-        imagePath,
-        width: 500,
-        height: 240,
-        fit: BoxFit.contain,
-      ),
-    );
-  }
-
-  Widget _buildFormContainer() {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.secondary, width: 2),
-        borderRadius: BorderRadius.circular(12),
-        color: theme.colorScheme.surface,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildEmailField(),
-            const SizedBox(height: 16),
-            _buildPasswordField(),
-            const SizedBox(height: 16),
-            _buildConfirmPasswordField(),
-            const SizedBox(height: 24),
-            _buildRegisterButton(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    final theme = Theme.of(context);
-
-    return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        labelText: 'Email',
-        hintText: 'Email',
-        prefixIcon: Icon(
-          Icons.email_outlined,
-          color: theme.colorScheme.primary,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Por favor ingresa tu email';
-        }
-        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-          return 'Ingresa un email válido';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildPasswordField() {
-    final theme = Theme.of(context);
-
-    return TextFormField(
-      controller: _passwordController,
-      obscureText: !_isPasswordVisible,
-      textInputAction: TextInputAction.next,
-      decoration: InputDecoration(
-        labelText: 'Contraseña',
-        hintText: 'Contraseña',
-        prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary),
-        suffixIcon: Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: IconButton(
-            icon: Icon(
-              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-              size: 20,
-              color: theme.colorScheme.primary,
-            ),
-            onPressed: () {
-              setState(() {
-                _isPasswordVisible = !_isPasswordVisible;
-              });
-            },
-            splashRadius: 20,
-          ),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Por favor ingresa tu contraseña';
-        }
-        if (value.length < 6) {
-          return 'La contraseña debe tener al menos 6 caracteres';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildConfirmPasswordField() {
-    final theme = Theme.of(context);
-
-    return TextFormField(
-      controller: _confirmPasswordController,
-      obscureText: !_isConfirmPasswordVisible,
-      textInputAction: TextInputAction.done,
-      decoration: InputDecoration(
-        labelText: 'Confirmar contraseña',
-        hintText: 'Confirmar contraseña',
-        prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary),
-        suffixIcon: Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: IconButton(
-            icon: Icon(
-              _isConfirmPasswordVisible
-                  ? Icons.visibility
-                  : Icons.visibility_off,
-              size: 20,
-              color: theme.colorScheme.primary,
-            ),
-            onPressed: () {
-              setState(() {
-                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-              });
-            },
-            splashRadius: 20,
-          ),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Por favor confirma tu contraseña';
-        }
-        if (value != _passwordController.text) {
-          return 'Las contraseñas no coinciden';
-        }
-        return null;
-      },
-    );
-  }
-
-  Widget _buildRegisterButton() {
-    return ElevatedButton(
-      onPressed: _isLoading ? null : _handleRegister,
-      child: _isLoading
-          ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Text(
-              'Registrarse',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-    );
-  }
-
-  Widget _buildLoginLink() {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '¿Ya tienes cuenta? ',
-            style: TextStyle(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
-              fontSize: 14,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Iniciar sesión',
-              style: TextStyle(
-                color: theme.colorScheme.secondary,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPrivacyPolicy() {
-    final theme = Theme.of(context);
-
-    return Text(
-      'Política de privacidad | cookies',
-      style: TextStyle(
-        fontSize: 14,
-        color: theme.colorScheme.onSurface.withOpacity(0.6),
-        decoration: TextDecoration.underline,
-      ),
-      textAlign: TextAlign.center,
-    );
-  }
-
-  void _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final email = _emailController.text.trim();
-      final pass = _passwordController.text.trim();
-
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: pass,
-      );
-
-      // (Opcional) verificación por correo:
-      // await FirebaseAuth.instance.currentUser?.sendEmailVerification();
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registro completado. ¡Bienvenido!')),
-      );
-
-      // Vuelve al login o navega a Home, como prefieras:
-      Navigator.pop(context);
-      // O:
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      final msg = _signUpErrorText(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error inesperado: $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  String _signUpErrorText(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'email-already-in-use':
-        return 'Ese email ya está registrado.';
-      case 'invalid-email':
-        return 'Email inválido.';
-      case 'operation-not-allowed':
-        return 'Este método de registro no está habilitado.';
-      case 'weak-password':
-        return 'La contraseña es demasiado débil.';
-      default:
-        return 'No se pudo registrar (${e.code}).';
-    }
   }
 }
