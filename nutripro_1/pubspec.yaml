@@ -30,6 +30,8 @@ dependencies:
 
   # 🔔 Notificaciones locales
   flutter_local_notifications: ^17.2.3
+  url_launcher: ^6.3.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

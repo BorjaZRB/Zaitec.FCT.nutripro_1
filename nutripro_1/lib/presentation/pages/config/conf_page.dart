@@ -1,48 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:nutripro_1/data/providers/auth_provider.dart';
+import 'package:nutripro_1/data/providers/theme_provider.dart';
+import 'package:nutripro_1/presentation/pages/profile/edit_profile_page.dart';
 import 'package:provider/provider.dart';
-import '../../../data/providers/theme_provider.dart';
 
-class ConfigPage extends StatelessWidget {
-  const ConfigPage({super.key});
+class ConfPage extends StatelessWidget {
+  const ConfPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final themeProvider = context.watch<ThemeProvider>();
+    final authProvider = context.read<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configuración'),
-      ),
       body: ListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Text(
-              'Apariencia',
-              style: TextStyle(
-                fontSize: 14,
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
           ListTile(
-            leading: Icon(
-              context.watch<ThemeProvider>().isDarkMode 
-                  ? Icons.dark_mode 
-                  : Icons.light_mode,
-              color: theme.colorScheme.primary,
-            ),
-            title: const Text('Tema'),
-            trailing: Switch(
-              value: context.watch<ThemeProvider>().isDarkMode,
-              onChanged: (_) {
-                context.read<ThemeProvider>().toggleTheme();
-              },
+            leading: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
+            title: const Text('Perfil'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const EditProfilePage()),
+              );
+            },
+          ),
+          const Divider(),
+          SwitchListTile(
+            title: const Text('Modo Oscuro'),
+            value: themeProvider.isDarkMode,
+            onChanged: (value) {
+              themeProvider.toggleTheme();
+            },
+            secondary: Icon(
+              themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
             ),
           ),
           const Divider(),
-          // Aquí puedes añadir más configuraciones siguiendo el mismo patrón
+          ListTile(
+            leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
+            title: Text(
+              'Cerrar Sesión',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            onTap: () async {
+              await authProvider.signOut();
+            },
+          ),
+          // Aquí puedes agregar más opciones de configuración
         ],
       ),
     );
