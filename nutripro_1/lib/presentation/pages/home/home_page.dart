@@ -7,15 +7,27 @@ import '../config/conf_page.dart';
 import '../profile/profile_page.dart';
 import 'package:nutripro_1/services/notification_service.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  Future<void> _logout(BuildContext context) async {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  Future<void> _logout() async {
+    // Capturamos el Navigator antes de operaciones async
+    final navigator = Navigator.of(context);
+    
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
 
-    // ir al login
-    Navigator.of(context).pushAndRemoveUntil(
+    // Verificar que el widget sigue montado antes de navegar
+    if (!mounted) return;
+
+    // ir al login usando el navigator capturado
+    navigator.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
     );
@@ -63,17 +75,49 @@ class HomePage extends StatelessWidget {
               title: const Text('Probar Notificación'),
               leading: const Icon(Icons.notification_add_outlined),
               onTap: () async {
+                // Capturamos el ScaffoldMessenger antes de operaciones async
+                final messenger = ScaffoldMessenger.of(context);
+                
                 // Cerramos el menú
                 Navigator.pop(context);
 
-                // Mostramos la notificación
-                final NotificationService notificationService =
-                    NotificationService();
-
-                await notificationService.showNotification(
-                  '¡Prueba de Notificación!',
-                  '¡Genial! La Tarea MSG-002 funciona.',
-                );
+                try {
+                  // Inicializamos y mostramos la notificación
+                  final NotificationService notificationService =
+                      NotificationService();
+                  
+                  // Inicializamos el servicio
+                  await notificationService.init();
+                  
+                  // Mostramos la notificación
+                  await notificationService.showNotification(
+                    '¡Prueba de Notificación!',
+                    '¡Genial! La Tarea MSG-002 funciona.',
+                  );
+                  
+                  // Verificar que el widget sigue montado antes de mostrar el SnackBar
+                  if (!mounted) return;
+                  
+                  // Mostramos un mensaje de confirmación usando el messenger capturado
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('¡Notificación enviada!'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                } catch (e) {
+                  // Verificar que el widget sigue montado antes de mostrar el error
+                  if (!mounted) return;
+                  
+                  // Si hay error, mostramos un mensaje usando el messenger capturado
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text('Error al enviar notificación: $e'),
+                      backgroundColor: Colors.red,
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
               },
             ),
             const Spacer(),
@@ -83,7 +127,7 @@ class HomePage extends StatelessWidget {
                 style: TextStyle(color: theme.colorScheme.error),
               ),
               leading: Icon(Icons.logout, color: theme.colorScheme.error),
-              onTap: () => _logout(context),
+              onTap: () => _logout(),
             ),
             const SizedBox(height: 20),
           ],

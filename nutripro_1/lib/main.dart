@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/firebase_options.dart';
 import 'presentation/app.dart';
-import 'services/notification_service.dart';
+import 'services/notification_service.dart'; 
 
 Future<void> _connectToEmulators() async {
   // En Android Emulator, 'localhost' del PC es 10.0.2.2
@@ -16,7 +16,7 @@ Future<void> _connectToEmulators() async {
   FirebaseStorage.instance.useStorageEmulator(host, 9199);
   await FirebaseAuth.instance.useAuthEmulator(host, 9099);
 
-  // Opcional: evita confusiones logueándote anónimo en local
+  // Opcional: login anónimo en entorno local
   if (FirebaseAuth.instance.currentUser == null) {
     await FirebaseAuth.instance.signInAnonymously();
   }
@@ -24,17 +24,20 @@ Future<void> _connectToEmulators() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // SOLO en debug usamos emuladores
+  // SOLO en modo debug usa los emuladores
   if (kDebugMode) {
     await _connectToEmulators();
   }
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Inicializa las notificaciones locales
   final NotificationService notificationService = NotificationService();
   await notificationService.init();
+
   runApp(const App());
 }
