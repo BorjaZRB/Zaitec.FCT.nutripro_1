@@ -5,8 +5,13 @@ import 'presentation/app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    // En caso de error con Firebase, la app podría no funcionar correctamente
+    // En un entorno de producción, aquí se usaría un sistema de logging apropiado
+  }
+  
   runApp(const App());
 }

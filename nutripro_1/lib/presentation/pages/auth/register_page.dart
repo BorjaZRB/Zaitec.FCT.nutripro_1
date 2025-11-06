@@ -1,30 +1,31 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'register_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nutripro_1/presentation/pages/home/home_page.dart';
 import 'package:provider/provider.dart';
 import '../../../data/providers/theme_provider.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -57,12 +58,9 @@ class _LoginPageState extends State<LoginPage> {
                   _buildFormContainer(),
 
                   const SizedBox(height: 16),
-                  
-                  const SizedBox(height: 16),
 
-                  // Enlace registrarse
-                  _buildRegisterLink(),
-                  
+                  _buildLoginLink(),
+
                   const Spacer(),
 
                   _buildPrivacyPolicy(),
@@ -109,8 +107,10 @@ class _LoginPageState extends State<LoginPage> {
             _buildEmailField(),
             const SizedBox(height: 16),
             _buildPasswordField(),
+            const SizedBox(height: 16),
+            _buildConfirmPasswordField(),
             const SizedBox(height: 24),
-            _buildLoginButton(),
+            _buildRegisterButton(),
           ],
         ),
       ),
@@ -131,8 +131,11 @@ class _LoginPageState extends State<LoginPage> {
           Icons.email_outlined,
           color: theme.colorScheme.primary,
         ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
-      style: TextStyle(color: theme.colorScheme.onSurface),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa tu email';
@@ -151,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
     return TextFormField(
       controller: _passwordController,
       obscureText: !_isPasswordVisible,
-      textInputAction: TextInputAction.done,
+      textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         labelText: 'Contraseña',
         hintText: 'Contraseña',
@@ -173,7 +176,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-      style: TextStyle(color: theme.colorScheme.onSurface),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Por favor ingresa tu contraseña';
@@ -183,71 +185,68 @@ class _LoginPageState extends State<LoginPage> {
         }
         return null;
       },
-      onFieldSubmitted: (_) => _handleLogin(),
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildConfirmPasswordField() {
     final theme = Theme.of(context);
 
-    return ElevatedButton(
-      onPressed: _isLoading ? null : _handleLogin,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    return TextFormField(
+      controller: _confirmPasswordController,
+      obscureText: !_isConfirmPasswordVisible,
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(
+        labelText: 'Confirmar contraseña',
+        hintText: 'Confirmar contraseña',
+        prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: IconButton(
+            icon: Icon(
+              _isConfirmPasswordVisible
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+              size: 20,
+              color: theme.colorScheme.primary,
+            ),
+            onPressed: () {
+              setState(() {
+                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+              });
+            },
+            splashRadius: 20,
+          ),
+        ),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor confirma tu contraseña';
+        }
+        if (value != _passwordController.text) {
+          return 'Las contraseñas no coinciden';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : _handleRegister,
       child: _isLoading
           ? const SizedBox(
               height: 20,
               width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
+              child: CircularProgressIndicator(strokeWidth: 2),
             )
           : const Text(
-              'Iniciar sesión',
+              'Registrarse',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
     );
   }
 
-  Widget _buildRegisterLink() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '¿No tienes cuenta? ',
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 14,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Funcionalidad de registro pendiente')),
-              );
-            },
-            child: Text(
-              'Regístrate',
-              style: TextStyle(
-                color: Colors.orange.shade300,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRegisterLink() {
+  Widget _buildLoginLink() {
     final theme = Theme.of(context);
 
     return Center(
@@ -255,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '¿No tienes cuenta? ',
+            '¿Ya tienes cuenta? ',
             style: TextStyle(
               color: theme.colorScheme.onSurface.withOpacity(0.7),
               fontSize: 14,
@@ -263,13 +262,10 @@ class _LoginPageState extends State<LoginPage> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const RegisterPage()),
-              );
+              Navigator.pop(context);
             },
             child: Text(
-              'Regístrate',
+              'Iniciar sesión',
               style: TextStyle(
                 color: theme.colorScheme.secondary,
                 fontSize: 14,
@@ -286,18 +282,18 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildPrivacyPolicy() {
     final theme = Theme.of(context);
 
-    return Center(
-      child: Text(
-        'Política de privacidad | cookies',
-        style: TextStyle(
-          color: theme.colorScheme.onSurface.withOpacity(0.6),
-          fontSize: 12,
-        ),
+    return Text(
+      'Política de privacidad | cookies',
+      style: TextStyle(
+        fontSize: 14,
+        color: theme.colorScheme.onSurface.withOpacity(0.6),
+        decoration: TextDecoration.underline,
       ),
+      textAlign: TextAlign.center,
     );
   }
 
-  void _handleLogin() async {
+  void _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -306,21 +302,27 @@ class _LoginPageState extends State<LoginPage> {
       final email = _emailController.text.trim();
       final pass = _passwordController.text.trim();
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: pass,
       );
 
+      // (Opcional) verificación por correo:
+      // await FirebaseAuth.instance.currentUser?.sendEmailVerification();
+
       if (!mounted) return;
 
-      // Navega a Home (ajústalo a tu flujo)
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registro completado. ¡Bienvenido!')),
       );
+
+      // Vuelve al login o navega a Home, como prefieras:
+      Navigator.pop(context);
+      // O:
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      final msg = _authErrorText(e);
+      final msg = _signUpErrorText(e);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } catch (e) {
       if (!mounted) return;
@@ -332,21 +334,18 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  /// Mensajes legibles para errores comunes de Firebase Auth
-  String _authErrorText(FirebaseAuthException e) {
+  String _signUpErrorText(FirebaseAuthException e) {
     switch (e.code) {
+      case 'email-already-in-use':
+        return 'Ese email ya está registrado.';
       case 'invalid-email':
         return 'Email inválido.';
-      case 'user-disabled':
-        return 'La cuenta está deshabilitada.';
-      case 'user-not-found':
-        return 'Usuario no encontrado.';
-      case 'wrong-password':
-        return 'Contraseña incorrecta.';
-      case 'too-many-requests':
-        return 'Demasiados intentos, espera un momento.';
+      case 'operation-not-allowed':
+        return 'Este método de registro no está habilitado.';
+      case 'weak-password':
+        return 'La contraseña es demasiado débil.';
       default:
-        return 'No se pudo iniciar sesión (${e.code}).';
+        return 'No se pudo registrar (${e.code}).';
     }
   }
 }

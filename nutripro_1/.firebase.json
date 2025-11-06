@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "zaitecfctnutripro1",
+          "appId": "1:373439335357:android:f28fd3a1a137c37620e0d4",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "zaitecfctnutripro1",
+          "configurations": {
+            "android": "1:373439335357:android:f28fd3a1a137c37620e0d4",
+            "web": "1:373439335357:web:6451cb76c4c81f5820e0d4",
+            "windows": "1:373439335357:web:d660d4ee2d25643920e0d4"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
+}
