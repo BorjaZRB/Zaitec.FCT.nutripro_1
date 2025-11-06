@@ -50,6 +50,13 @@ class _LoginPageState extends State<LoginPage> {
                   // Formulario en contenedor
                   _buildFormContainer(),
                   
+                  const SizedBox(height: 16),
+                  
+                  const SizedBox(height: 16),
+
+                  // Enlace registrarse
+                  _buildRegisterLink(),
+                  
                   const Spacer(),
                   
                   // Política de privacidad
@@ -218,6 +225,39 @@ class _LoginPageState extends State<LoginPage> {
               child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             )
           : const Text('Iniciar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildRegisterLink() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '¿No tienes cuenta? ',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Funcionalidad de registro pendiente')),
+              );
+            },
+            child: Text(
+              'Regístrate',
+              style: TextStyle(
+                color: Colors.orange.shade300,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
