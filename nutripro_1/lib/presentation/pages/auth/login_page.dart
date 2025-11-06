@@ -57,13 +57,12 @@ class _LoginPageState extends State<LoginPage> {
                   _buildFormContainer(),
 
                   const SizedBox(height: 16),
+                  
+                  const SizedBox(height: 16),
 
-                  _buildForgotPasswordLink(),
-
-                  const SizedBox(height: 8),
-
+                  // Enlace registrarse
                   _buildRegisterLink(),
-
+                  
                   const Spacer(),
 
                   _buildPrivacyPolicy(),
@@ -215,44 +214,35 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildForgotPasswordLink() {
-    final theme = Theme.of(context);
-
+  Widget _buildRegisterLink() {
     return Center(
-      child: TextButton(
-        onPressed: () async {
-          final email = _emailController.text.trim();
-          if (email.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Escribe tu email para enviar el enlace.'),
-              ),
-            );
-            return;
-          }
-          try {
-            await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-            if (!mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Te enviamos un correo para restablecer.'),
-              ),
-            );
-          } on FirebaseAuthException catch (e) {
-            if (!mounted) return;
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(_authErrorText(e))));
-          }
-        },
-
-        child: Text(
-          '¿Olvidaste tu contraseña?',
-          style: TextStyle(
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
-            decoration: TextDecoration.underline,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '¿No tienes cuenta? ',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+            ),
           ),
-        ),
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Funcionalidad de registro pendiente')),
+              );
+            },
+            child: Text(
+              'Regístrate',
+              style: TextStyle(
+                color: Colors.orange.shade300,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
