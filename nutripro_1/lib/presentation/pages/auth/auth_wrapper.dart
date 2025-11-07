@@ -16,8 +16,6 @@ class AuthWrapper extends StatefulWidget {
 }
 
 class _AuthWrapperState extends State<AuthWrapper> {
-
-
   @override
   Widget build(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
@@ -34,11 +32,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
           final user = authSnapshot.data!;
 
           return StreamBuilder<UserProfile?>(
-            stream: context
-                .read<UserProfileProvider>()
-                .getUserProfileStream(user.uid),
+            stream: context.read<UserProfileProvider>().getUserProfileStream(
+              user.uid,
+            ),
             builder: (context, profileSnapshot) {
-              
               if (profileSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
@@ -53,7 +50,8 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
               final userProfile = profileSnapshot.data;
 
-              if (userProfile == null || userProfile.profileCompleted == false) {
+              if (userProfile == null ||
+                  userProfile.profileCompleted == false) {
                 return const OnboardingPage();
               }
               return const HomePage();

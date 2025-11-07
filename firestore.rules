@@ -1,15 +1,21 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() { return request.auth != null; }
-    function isOwner() {
-      return resource.data.ownerId == request.auth.uid
-          || request.resource.data.ownerId == request.auth.uid;
-    }
-    match /recipes/{recipeId} {
-      allow read: if true;                    // visibles en app; cambia si quieres
-      allow create: if isSignedIn() && isOwner();
-      allow update, delete: if isSignedIn() && isOwner();
+  
+    match /users/{userId} {
+      // Un usuario solo puede leer y escribir su propio documento de perfil
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      match /tracking/{trackId} {
+        // El usuario puede leer y escribir (crear, actualizar, borrar)
+        // registros de tracking SOLO si es el dueño (su {userId} coincide)
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      match /recommendations/{recId} {
+        // El usuario puede leer y escribir (crear, actualizar, borrar)
+        // recomendaciones SOLO si es el dueño
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
   }
 }

@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nutripro_1/data/models/user_profile_model.dart';
 import 'package:nutripro_1/data/providers/user_profile_provider.dart';
+import 'package:nutripro_1/presentation/pages/auth/login_page.dart';
 import 'package:nutripro_1/presentation/pages/home/home_page.dart';
 import 'package:provider/provider.dart';
 
@@ -43,15 +46,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception('Usuario no encontrado');
+      if (user == null) {
+        // Si no hay usuario autenticado, redirigir al login
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginPage()),
+          );
+        }
+        return;
+      }
 
       final profileProvider = context.read<UserProfileProvider>();
 
-      final currentProfile = await profileProvider.getUserProfileStream(user.uid).first;
-
-      if (currentProfile == null) throw Exception('Perfil de usuario no encontrado');
-
-      final updatedProfile = currentProfile.copyWith(
+      // Crear un nuevo perfil
+      final newProfile = UserProfile(
+        email: user.email ?? '',
         name: _nameController.text.trim(),
         waterGoal: double.tryParse(_waterController.text.trim()),
         mealsPerDay: int.tryParse(_mealsController.text.trim()),
@@ -59,14 +68,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
         weight: double.tryParse(_weightController.text.trim()),
         height: double.tryParse(_heightController.text.trim()),
         profileCompleted: true,
+        createdAt: Timestamp.now(),
       );
 
-      await profileProvider.saveUserProfile(user.uid, updatedProfile);
+      await profileProvider.saveUserProfile(user.uid, newProfile);
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomePage()),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const HomePage()));
       }
     } catch (e) {
       if (mounted) {
@@ -134,8 +144,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   controller: _weightController,
                   label: 'Peso (kg)',
                   icon: Icons.monitor_weight,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d+\.?\d{0,2}'),
+                    ),
+                  ],
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Campo requerido' : null,
                 ),
@@ -144,8 +160,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   controller: _waterController,
                   label: 'Meta de agua (Litros/día)',
                   icon: Icons.water_drop,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}'))],
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d+\.?\d{0,1}'),
+                    ),
+                  ],
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Campo requerido' : null,
                 ),
