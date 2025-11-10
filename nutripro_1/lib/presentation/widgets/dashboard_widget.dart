@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -36,25 +35,25 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _header(context, cs, tt),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         Row(
           children: [
             Expanded(child: _statCard(context, Icons.local_fire_department, 'Calorías', '${widget.calories} kcal')),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(child: _statCard(context, Icons.restaurant, 'Comidas', '${widget.meals}')),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         Row(
           children: [
             Expanded(child: _statCard(context, Icons.water_drop, 'Agua', '${widget.water.toInt()} vasos')),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(child: _goalsCard(context)),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         _chartCard(
           context,
@@ -66,11 +65,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  // HEADER + TOGGLE
   Widget _header(BuildContext context, ColorScheme cs, TextTheme tt) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -78,25 +76,16 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              'HOME',
-              style: tt.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
-            ),
-          ),
+          Expanded(child: const SizedBox()), // Ocupa espacio para centrar toggle
           _modeSelector(cs),
         ],
       ),
     );
   }
 
-  // TOGGLE
   Widget _modeSelector(ColorScheme cs) {
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: cs.primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
@@ -116,7 +105,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: selected ? cs.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
@@ -132,13 +121,12 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  // SMALL CARDS
   Widget _statCard(BuildContext context, IconData icon, String title, String value) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(18), // ✅ un poco más grande
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -148,10 +136,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
         children: [
           CircleAvatar(
             backgroundColor: cs.primary.withOpacity(0.15),
-            radius: 20,
-            child: Icon(icon, color: cs.primary, size: 22),
+            radius: 22, // ✅ un poco más grande
+            child: Icon(icon, color: cs.primary, size: 24),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -165,13 +153,12 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  // GOALS CARD
   Widget _goalsCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(18), // ✅ un poco más grande
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -181,12 +168,12 @@ class _DashboardWidgetState extends State<DashboardWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Objetivos', style: tt.labelMedium?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: widget.goalsProgress.clamp(0.0, 1.0),
-              minHeight: 8,
+              minHeight: 10, // ✅ barra más alta
               backgroundColor: cs.primary.withOpacity(0.15),
               valueColor: AlwaysStoppedAnimation(cs.primary),
             ),
@@ -196,13 +183,12 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  // CHART CARD
   Widget _chartCard(BuildContext context, {required String title, required Widget chart, required bool hasData}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16), // ✅ un poco más grande
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -212,9 +198,9 @@ class _DashboardWidgetState extends State<DashboardWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           SizedBox(
-            height: 190,
+            height: 240, // ✅ gráfico más grande (antes 190)
             child: hasData ? chart : Center(child: Text("No hay datos aún")),
           ),
         ],
@@ -222,7 +208,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  // WEEKLY CHART
   Widget _weeklyChart(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
@@ -252,7 +237,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  // MONTHLY CHART
   Widget _monthlyChart(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
@@ -267,7 +251,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             barRods: [
               BarChartRodData(
                 toY: e.value,
-                width: 16,
+                width: 20, // ✅ barras más anchas
                 color: cs.secondary,
                 borderRadius: BorderRadius.circular(6),
               ),
