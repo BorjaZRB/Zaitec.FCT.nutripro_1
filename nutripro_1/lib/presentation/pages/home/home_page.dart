@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/presentation/pages/config/conf_page.dart';
 import 'package:nutripro_1/presentation/pages/profile/profile_page.dart';
@@ -15,13 +16,35 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 2;
 
-  static const List<Widget> _pages = <Widget>[
-    DailyMenuPage(),
-    ProgressPage(),
-    TrackingPage(),
-    ProfilePage(),
-    ConfPage(),
-  ];
+  late StreamController<Map<String, dynamic>> _streamController;
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // StreamController para los datos del usuario
+    _streamController = StreamController<Map<String, dynamic>>.broadcast();
+
+    // Datos iniciales (puedes reemplazar esto con los resultados de la encuesta)
+    _streamController.add({
+      "calories": 2000,
+      "meals": 3,
+      "water": 3,
+      "goalsProgress": 0.5,
+      "weeklyData": [50.0, 60.0, 55.0, 70.0, 65.0, 75.0, 80.0],
+      "monthlyData": [60.0, 70.0, 65.0, 80.0],
+    });
+
+    // Inicializamos las páginas
+    _pages = [
+      DailyMenuPage(),
+      ProgressPage(stream: _streamController.stream),
+      TrackingPage(),
+      ProfilePage(),
+      ConfPage(),
+    ];
+  }
 
   static const List<String> _titles = <String>[
     'Menú Diario',
@@ -38,10 +61,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
+  }
+
+  // Función para actualizar los datos desde la encuesta
+  void updateUserData(Map<String, dynamic> newData) {
+    _streamController.add(newData);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
         title: Text(_titles[_selectedIndex]),
       ),
       body: Center(
