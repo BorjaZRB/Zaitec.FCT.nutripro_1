@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/presentation/pages/config/image_hosts.dart';
-import 'package:nutripro_1/presentation/pages/home/recipes_detail_page.dart';
+import 'package:nutripro_1/presentation/pages/daily_menu/recipes_detail_page.dart';
 import 'package:nutripro_1/presentation/widgets/net_image.dart';
 
 class RecipesListPage extends StatelessWidget {
