@@ -76,7 +76,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       ),
       child: Row(
         children: [
-          Expanded(child: const SizedBox()), // Ocupa espacio para centrar toggle
+          Expanded(child: const SizedBox()), 
           _modeSelector(cs),
         ],
       ),
@@ -126,7 +126,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(18), // ✅ un poco más grande
+      padding: const EdgeInsets.all(18), 
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -136,7 +136,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
         children: [
           CircleAvatar(
             backgroundColor: cs.primary.withOpacity(0.15),
-            radius: 22, // ✅ un poco más grande
+            radius: 22, 
             child: Icon(icon, color: cs.primary, size: 24),
           ),
           const SizedBox(width: 14),
@@ -158,7 +158,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(18), // ✅ un poco más grande
+      padding: const EdgeInsets.all(18), 
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -173,7 +173,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: widget.goalsProgress.clamp(0.0, 1.0),
-              minHeight: 10, // ✅ barra más alta
+              minHeight: 10, 
               backgroundColor: cs.primary.withOpacity(0.15),
               valueColor: AlwaysStoppedAnimation(cs.primary),
             ),
@@ -188,7 +188,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(16), // ✅ un poco más grande
+      padding: const EdgeInsets.all(16), 
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
@@ -200,7 +200,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 14),
           SizedBox(
-            height: 240, // ✅ gráfico más grande (antes 190)
+            height: 240, 
             child: hasData ? chart : Center(child: Text("No hay datos aún")),
           ),
         ],
@@ -251,7 +251,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             barRods: [
               BarChartRodData(
                 toY: e.value,
-                width: 20, // ✅ barras más anchas
+                width: 20, 
                 color: cs.secondary,
                 borderRadius: BorderRadius.circular(6),
               ),
