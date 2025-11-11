@@ -26,6 +26,17 @@ class DashboardWidget extends StatefulWidget {
 class _DashboardWidgetState extends State<DashboardWidget> {
   bool showWeekly = true;
 
+   
+  void _exportPdfMock() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Exportando PDF... ",
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -65,6 +76,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
+  
   Widget _header(BuildContext context, ColorScheme cs, TextTheme tt) {
     return Container(
       width: double.infinity,
@@ -72,11 +84,26 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 3))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: const SizedBox()), // Ocupa espacio para centrar toggle
+         
+          IconButton(
+            onPressed: _exportPdfMock,
+            icon: const Icon(Icons.picture_as_pdf),
+            iconSize: 40,
+            color: cs.primary,
+            tooltip: "Exportar estadísticas en PDF",
+          ),
+
           _modeSelector(cs),
         ],
       ),
@@ -126,17 +153,23 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(18), // ✅ un poco más grande
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
           CircleAvatar(
             backgroundColor: cs.primary.withOpacity(0.15),
-            radius: 22, // ✅ un poco más grande
+            radius: 22,
             child: Icon(icon, color: cs.primary, size: 24),
           ),
           const SizedBox(width: 14),
@@ -158,11 +191,17 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(18), // ✅ un poco más grande
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 6, offset: const Offset(0,4))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +212,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: widget.goalsProgress.clamp(0.0, 1.0),
-              minHeight: 10, // ✅ barra más alta
+              minHeight: 10,
               backgroundColor: cs.primary.withOpacity(0.15),
               valueColor: AlwaysStoppedAnimation(cs.primary),
             ),
@@ -183,16 +222,23 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  Widget _chartCard(BuildContext context, {required String title, required Widget chart, required bool hasData}) {
+  Widget _chartCard(BuildContext context,
+      {required String title, required Widget chart, required bool hasData}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(16), // ✅ un poco más grande
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,8 +246,8 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 14),
           SizedBox(
-            height: 240, // ✅ gráfico más grande (antes 190)
-            child: hasData ? chart : Center(child: Text("No hay datos aún")),
+            height: 240,
+            child: hasData ? chart : const Center(child: Text("No hay datos aún")),
           ),
         ],
       ),
@@ -251,7 +297,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             barRods: [
               BarChartRodData(
                 toY: e.value,
-                width: 20, // ✅ barras más anchas
+                width: 20,
                 color: cs.secondary,
                 borderRadius: BorderRadius.circular(6),
               ),
@@ -262,3 +308,4 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 }
+
