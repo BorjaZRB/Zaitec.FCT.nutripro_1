@@ -41,6 +41,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final bool aguaBaja = widget.water < 4;
+    final bool comidasBajas = widget.meals < 3;
+    final bool caloriasBajas = widget.calories < 1200;
+    final bool objetivosBajos = widget.goalsProgress < 0.4;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,16 +54,41 @@ class _DashboardWidgetState extends State<DashboardWidget> {
 
         Row(
           children: [
-            Expanded(child: _statCard(context, Icons.local_fire_department, 'Calorías', '${widget.calories} kcal')),
+            Expanded(
+              child: _statCard(
+                context,
+                Icons.local_fire_department,
+                'Calorías',
+                '${widget.calories} kcal',
+                alerta: caloriasBajas ? 'Calorías bajas' : null,
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _statCard(context, Icons.restaurant, 'Comidas', '${widget.meals}')),
+            Expanded(
+              child: _statCard(
+                context,
+                Icons.restaurant,
+                'Comidas',
+                '${widget.meals}',
+                alerta: comidasBajas ? 'Pocas comidas' : null,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
 
         Row(
           children: [
-            Expanded(child: _statCard(context, Icons.water_drop, 'Agua', '${widget.water.toInt()} vasos')),
+            Expanded(
+              child: _statCard(
+                context,
+                Icons.water_drop,
+                'Agua',
+                '${widget.water.toInt()} vasos',
+                alerta: aguaBaja ? 'Hidratación insuficiente' : null,
+              ),
+            ),
+
             const SizedBox(width: 16),
             Expanded(child: _goalsCard(context)),
           ],
@@ -148,7 +177,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  Widget _statCard(BuildContext context, IconData icon, String title, String value) {
+  Widget _statCard(BuildContext context, IconData icon, String title, String value, {String? alerta}){
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -173,13 +202,28 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             child: Icon(icon, color: cs.primary, size: 24),
           ),
           const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: tt.labelMedium?.copyWith(color: cs.onSurface.withOpacity(0.7))),
-              const SizedBox(height: 4),
-              Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: tt.labelMedium?.copyWith(color: cs.onSurface.withOpacity(0.7))),
+                const SizedBox(height: 4),
+                Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                if (alerta != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: SizedBox(
+                      width: 140,
+                      child: Text(
+                        alerta,
+                        style: tt.labelSmall?.copyWith(color: cs.error),
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -217,6 +261,15 @@ class _DashboardWidgetState extends State<DashboardWidget> {
               valueColor: AlwaysStoppedAnimation(cs.primary),
             ),
           ),
+          if (widget.goalsProgress < 0.4)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Cumplimiento bajo',
+                style: tt.labelSmall?.copyWith(color: cs.error),
+              ),
+            ),
+
         ],
       ),
     );
