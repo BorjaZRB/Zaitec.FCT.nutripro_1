@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/data/providers/auth_provider.dart';
+import 'package:nutripro_1/presentation/pages/reminders_page.dart';
 import 'package:nutripro_1/data/providers/recommendation_provider.dart';
 import 'package:nutripro_1/data/providers/tracking_provider.dart';
 import 'package:nutripro_1/data/providers/user_profile_provider.dart';
@@ -25,7 +26,7 @@ class App extends StatelessWidget {
           create: (_) => AuthProvider(),
         ),
       ],
-      child: Consumer<ThemeProvider>(
+          child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
             title: 'Nutripro',
@@ -35,6 +36,9 @@ class App extends StatelessWidget {
             themeMode:
                 themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
             home: const AuthWrapper(),
+            routes: {
+              '/reminders': (context) => const RemindersPage(),
+            },
           );
         },
       ),
