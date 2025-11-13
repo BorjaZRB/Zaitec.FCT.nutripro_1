@@ -2,16 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:nutripro_1/data/providers/auth_provider.dart';
 import 'package:nutripro_1/data/providers/theme_provider.dart';
 import 'package:nutripro_1/presentation/pages/profile/edit_profile_page.dart';
+import 'package:nutripro_1/presentation/pages/reminders_page.dart';
 import 'package:provider/provider.dart';
-import '../reminders_page.dart';
 
 class ConfPage extends StatelessWidget {
   const ConfPage({super.key});
 
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      await context.read<AuthProvider>().signOut();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cerrar sesión: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    final authProvider = context.read<AuthProvider>();
 
     return Scaffold(
       body: ListView(
@@ -21,23 +35,23 @@ class ConfPage extends StatelessWidget {
               Icons.person,
               color: Theme.of(context).colorScheme.primary,
             ),
-            title: const Text('Perfil'),
-            trailing: const Icon(Icons.arrow_forward_ios),
+            title: const Text('Editar Perfil'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const EditProfilePage()),
               );
             },
           ),
-          const Divider(),
           SwitchListTile(
             title: const Text('Modo Oscuro'),
             value: themeProvider.isDarkMode,
             onChanged: (value) {
-              themeProvider.toggleTheme();
+              themeProvider.toggleTheme(value);
             },
             secondary: Icon(
               themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           ListTile(
@@ -46,14 +60,13 @@ class ConfPage extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             title: const Text('Recordatorios'),
-            trailing: const Icon(Icons.arrow_forward_ios),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const RemindersPage()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const RemindersPage()),
+              );
             },
           ),
-          const Divider(),
           ListTile(
             leading: Icon(
               Icons.logout,
@@ -63,11 +76,10 @@ class ConfPage extends StatelessWidget {
               'Cerrar Sesión',
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
-            onTap: () async {
-              await authProvider.signOut();
+            onTap: () {
+              _signOut(context);
             },
           ),
-          // Aquí puedes agregar más opciones de configuración
         ],
       ),
     );

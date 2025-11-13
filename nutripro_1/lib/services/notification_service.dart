@@ -93,7 +93,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('notifications_accepted', accepted);
     } catch (e) {
-      print('Error al guardar estado de permisos: $e');
+      debugPrint('Error al guardar estado de permisos: $e');
     }
   }
 
@@ -103,7 +103,7 @@ class NotificationService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getBool('notifications_accepted') ?? false;
     } catch (e) {
-      print('Error al leer estado de permisos: $e');
+      debugPrint('Error al leer estado de permisos: $e');
       return false;
     }
   }
@@ -149,7 +149,7 @@ class NotificationService {
       );
     } catch (e, st) {
       // Loggear error para diagnóstico; evita que la app crashee.
-      print('Error showing notification: $e\n$st');
+      debugPrint('Error showing notification: $e\n$st');
     }
   }
 
@@ -192,15 +192,13 @@ class NotificationService {
         body,
         scheduledDate,
         platformDetails,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         // payload usado para identificar que debe abrir la pantalla de recordatorios
         payload: 'reminders',
       );
     } catch (e, st) {
-      print('Error scheduling daily reminder (id=$id): $e\n$st');
+      debugPrint('Error scheduling daily reminder (id=$id): $e\n$st');
     }
   }
 
@@ -231,7 +229,7 @@ class NotificationService {
         payload: 'reminders',
       );
     } catch (e, st) {
-      print('Error scheduling hourly reminder: $e\n$st');
+      debugPrint('Error scheduling hourly reminder: $e\n$st');
     }
   }
 
@@ -264,7 +262,7 @@ class NotificationService {
       final jsonString = jsonEncode(reminders);
       await prefs.setString('reminders', jsonString);
     } catch (e) {
-      print('Error al guardar recordatorios: $e');
+      debugPrint('Error al guardar recordatorios: $e');
     }
   }
 
@@ -283,7 +281,7 @@ class NotificationService {
           .map((item) => Map<String, dynamic>.from(item as Map))
           .toList();
     } catch (e) {
-      print('Error al cargar recordatorios: $e');
+      debugPrint('Error al cargar recordatorios: $e');
       return [];
     }
   }
@@ -293,7 +291,7 @@ class NotificationService {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
     } catch (e) {
-      print('Error al cancelar notificación $id: $e');
+      debugPrint('Error al cancelar notificación $id: $e');
     }
   }
 
@@ -302,7 +300,7 @@ class NotificationService {
     try {
       await _flutterLocalNotificationsPlugin.cancelAll();
     } catch (e) {
-      print('Error al cancelar todas las notificaciones: $e');
+      debugPrint('Error al cancelar todas las notificaciones: $e');
     }
   }
 
@@ -312,7 +310,7 @@ class NotificationService {
       final list = await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
       return list;
     } catch (e) {
-      print('Error al obtener pending notifications: $e');
+      debugPrint('Error al obtener pending notifications: $e');
       return [];
     }
   }

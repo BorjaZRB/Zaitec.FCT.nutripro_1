@@ -10,6 +10,7 @@ class UserProfile {
   final double? height;
   final bool profileCompleted;
   final Timestamp createdAt;
+  final bool isAdmin;
 
   UserProfile({
     required this.email,
@@ -21,6 +22,7 @@ class UserProfile {
     this.height,
     this.profileCompleted = false,
     required this.createdAt,
+    this.isAdmin = false,
   });
 
   factory UserProfile.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +37,7 @@ class UserProfile {
       height: (data['height'] as num?)?.toDouble(),
       profileCompleted: data['profileCompleted'] ?? false,
       createdAt: data['createdAt'] ?? Timestamp.now(),
+      isAdmin: data['isAdmin'] ?? false,
     );
   }
 
@@ -49,6 +52,7 @@ class UserProfile {
       'height': height,
       'profileCompleted': profileCompleted,
       'createdAt': createdAt,
+      'isAdmin': isAdmin,
     };
   }
 
@@ -60,6 +64,7 @@ class UserProfile {
     double? weight,
     double? height,
     bool? profileCompleted,
+    bool? isAdmin,
   }) {
     return UserProfile(
       email: email,
@@ -71,6 +76,7 @@ class UserProfile {
       height: height ?? this.height,
       profileCompleted: profileCompleted ?? this.profileCompleted,
       createdAt: createdAt,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }
