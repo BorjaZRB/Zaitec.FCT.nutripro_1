@@ -1,9 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/data/providers/auth_provider.dart';
-import 'package:nutripro_1/presentation/pages/auth/register_page.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -155,33 +153,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           child: const Text('Iniciar Sesión'),
                         ),
-                  const SizedBox(height: 24),
-                  // --- Texto para Registrarse ---
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(color: colorScheme.onSurface),
-                        children: [
-                          const TextSpan(text: '¿No tienes cuenta? '),
-                          TextSpan(
-                            text: 'Regístrate',
-                            style: TextStyle(
-                              color: colorScheme.secondary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (_) => const RegisterPage(),
-                                  ),
-                                );
-                              },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 48),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

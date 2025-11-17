@@ -32,6 +32,7 @@ class AuthProvider {
           'email': userCredential.user!.email,
           'createdAt': FieldValue.serverTimestamp(),
           'profileCompleted': false,
+          'isAdmin': false,
         });
       }
 
