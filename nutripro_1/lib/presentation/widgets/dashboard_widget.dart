@@ -26,10 +26,27 @@ class DashboardWidget extends StatefulWidget {
 class _DashboardWidgetState extends State<DashboardWidget> {
   bool showWeekly = true;
 
+  String selectedMetric = "calorias"; 
+
+  void _exportPdfMock() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Exportando PDF...",
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+
+    final bool aguaBaja = widget.water < 4;
+    final bool comidasBajas = widget.meals < 3;
+    final bool caloriasBajas = widget.calories < 1200;
+    final bool objetivosBajos = widget.goalsProgress < 0.4;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,27 +56,53 @@ class _DashboardWidgetState extends State<DashboardWidget> {
 
         Row(
           children: [
-            Expanded(child: _statCard(context, Icons.local_fire_department, 'Calorías', '${widget.calories} kcal')),
+            Expanded(
+              child: _statCard(
+                context,
+                Icons.local_fire_department,
+                'Calorías',
+                '${widget.calories} kcal',
+                alerta: caloriasBajas ? 'Calorías bajas' : null,
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: _statCard(context, Icons.restaurant, 'Comidas', '${widget.meals}')),
+            Expanded(
+              child: _statCard(
+                context,
+                Icons.restaurant,
+                'Comidas',
+                '${widget.meals}',
+                alerta: comidasBajas ? 'Pocas comidas' : null,
+              ),
+            ),
           ],
         ),
+
         const SizedBox(height: 16),
 
         Row(
           children: [
-            Expanded(child: _statCard(context, Icons.water_drop, 'Agua', '${widget.water.toInt()} vasos')),
+            Expanded(
+              child: _statCard(
+                context,
+                Icons.water_drop,
+                'Agua',
+                '${widget.water.toInt()} vasos',
+                alerta: aguaBaja ? 'Hidratación insuficiente' : null,
+              ),
+            ),
             const SizedBox(width: 16),
             Expanded(child: _goalsCard(context)),
           ],
         ),
+
         const SizedBox(height: 16),
 
         _chartCard(
           context,
-          title: showWeekly ? 'Evolución Semanal' : 'Evolución Mensual',
-          chart: showWeekly ? _weeklyChart(context) : _monthlyChart(context),
-          hasData: showWeekly ? widget.weeklyData.isNotEmpty : widget.monthlyData.isNotEmpty,
+          title: _chartTitle(),
+          chart: _selectedChart(context),
+          hasData: _hasChartData(),
         ),
       ],
     );
@@ -72,12 +115,31 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 3))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.03),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(child: const SizedBox()), 
-          _modeSelector(cs),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: _exportPdfMock,
+                icon: const Icon(Icons.picture_as_pdf),
+                iconSize: 40,
+                color: cs.primary,
+                tooltip: "Exportar estadísticas en PDF",
+              ),
+              _modeSelector(cs),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _metricSelector(cs),
         ],
       ),
     );
@@ -121,32 +183,95 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  Widget _statCard(BuildContext context, IconData icon, String title, String value) {
+
+
+  Widget _metricSelector(ColorScheme cs) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: cs.secondary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _metricButton("Calorías", "calorias"),
+          _metricButton("Comidas", "comidas"),
+          _metricButton("Agua", "agua"),
+        ],
+      ),
+    );
+  }
+
+  Widget _metricButton(String label, String key) {
+    final cs = Theme.of(context).colorScheme;
+    final bool selected = selectedMetric == key;
+
+    return GestureDetector(
+      onTap: () => setState(() => selectedMetric = key),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? cs.secondary : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? cs.onSecondary : cs.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  
+
+  Widget _statCard(BuildContext context, IconData icon, String title, String value,
+      {String? alerta}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(18), 
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
           CircleAvatar(
             backgroundColor: cs.primary.withOpacity(0.15),
-            radius: 22, 
+            radius: 22,
             child: Icon(icon, color: cs.primary, size: 24),
           ),
           const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: tt.labelMedium?.copyWith(color: cs.onSurface.withOpacity(0.7))),
-              const SizedBox(height: 4),
-              Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: tt.labelMedium?.copyWith(color: cs.onSurface.withOpacity(0.7))),
+                const SizedBox(height: 4),
+                Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                if (alerta != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      alerta,
+                      style: tt.labelSmall?.copyWith(color: cs.error),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -158,11 +283,17 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(18), 
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 6, offset: const Offset(0,4))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,26 +304,43 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: widget.goalsProgress.clamp(0.0, 1.0),
-              minHeight: 10, 
+              minHeight: 10,
               backgroundColor: cs.primary.withOpacity(0.15),
               valueColor: AlwaysStoppedAnimation(cs.primary),
             ),
           ),
+          if (widget.goalsProgress < 0.4)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Cumplimiento bajo',
+                style: tt.labelSmall?.copyWith(color: cs.error),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _chartCard(BuildContext context, {required String title, required Widget chart, required bool hasData}) {
+
+
+  Widget _chartCard(BuildContext context,
+      {required String title, required Widget chart, required bool hasData}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(16), 
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: cs.onSurface.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: cs.onSurface.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,18 +348,41 @@ class _DashboardWidgetState extends State<DashboardWidget> {
           Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 14),
           SizedBox(
-            height: 240, 
-            child: hasData ? chart : Center(child: Text("No hay datos aún")),
+            height: 240,
+            child: hasData ? chart : const Center(child: Text("No hay datos aún")),
           ),
         ],
       ),
     );
   }
 
-  Widget _weeklyChart(BuildContext context) {
+  String _chartTitle() {
+    final period = showWeekly ? "Semanal" : "Mensual";
+
+    switch (selectedMetric) {
+      case "calorias":
+        return "Calorías ($period)";
+      case "comidas":
+        return "Comidas ($period)";
+      case "agua":
+        return "Agua ($period)";
+      default:
+        return "Estadísticas ($period)";
+    }
+  }
+
+  bool _hasChartData() {
+    return (showWeekly ? widget.weeklyData : widget.monthlyData).isNotEmpty;
+  }
+
+  Widget _selectedChart(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final spots = widget.weeklyData.asMap().entries
+  
+    final List<double> data =
+        showWeekly ? widget.weeklyData : widget.monthlyData;
+
+    final spots = data.asMap().entries
         .map((e) => FlSpot(e.key.toDouble(), e.value))
         .toList();
 
@@ -233,31 +404,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _monthlyChart(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return BarChart(
-      BarChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        barGroups: widget.monthlyData.asMap().entries.map((e) {
-          return BarChartGroupData(
-            x: e.key,
-            barRods: [
-              BarChartRodData(
-                toY: e.value,
-                width: 20, 
-                color: cs.secondary,
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ],
-          );
-        }).toList(),
       ),
     );
   }

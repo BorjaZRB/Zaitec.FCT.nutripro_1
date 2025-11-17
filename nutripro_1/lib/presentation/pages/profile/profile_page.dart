@@ -95,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       body: StreamBuilder<UserProfile?>(
         stream: context
-            .watch<UserProfileProvider>()
+            .read<UserProfileProvider>()
             .getUserProfileStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
