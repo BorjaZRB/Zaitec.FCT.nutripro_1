@@ -46,7 +46,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final bool aguaBaja = widget.water < 4;
     final bool comidasBajas = widget.meals < 3;
     final bool caloriasBajas = widget.calories < 1200;
-    final bool objetivosBajos = widget.goalsProgress < 0.4;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

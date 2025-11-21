@@ -21,7 +21,9 @@ class UserProfileProvider with ChangeNotifier {
 
   Stream<List<UserProfile>> getAllUsersStream() {
     return _firestore.collection('users').snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => UserProfile.fromFirestore(doc)).toList();
+      return snapshot.docs
+          .map((doc) => UserProfile.fromFirestore(doc))
+          .toList();
     });
   }
 
@@ -52,14 +54,8 @@ class UserProfileProvider with ChangeNotifier {
   Future<void> updateField(String field, dynamic value) async {
     final user = _auth.currentUser;
     if (user != null) {
-      await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .update({field: value});
-      if (field == 'profileCompleted' && value is bool) {
-        _userProfile = _userProfile?.copyWith(profileCompleted: value);
-        notifyListeners();
-      }
+      await _firestore.collection('users').doc(user.uid).update({field: value});
+      notifyListeners();
     }
   }
 
@@ -82,11 +78,21 @@ class UserProfileProvider with ChangeNotifier {
           .collection('users')
           .doc(uid)
           .set(updatedProfile.toMap(), SetOptions(merge: true));
-      
+
       _userProfile = updatedProfile;
       notifyListeners();
     } catch (e) {
       debugPrint('Error en saveUserProfile: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteUserProfile(String uid) async {
+    try {
+      await _firestore.collection('users').doc(uid).delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error al eliminar usuario: $e');
       rethrow;
     }
   }

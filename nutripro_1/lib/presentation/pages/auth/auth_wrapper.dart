@@ -6,7 +6,6 @@ import 'package:nutripro_1/data/providers/user_profile_provider.dart';
 import 'package:nutripro_1/presentation/pages/admin/admin_home_page.dart';
 import 'package:nutripro_1/presentation/pages/auth/login_page.dart';
 import 'package:nutripro_1/presentation/pages/home/home_page.dart';
-import 'package:nutripro_1/presentation/pages/onboarding/onboarding_page.dart';
 import 'package:provider/provider.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -51,9 +50,7 @@ class _ProfileLoaderRedirectorState extends State<_ProfileLoaderRedirector> {
   @override
   void initState() {
     super.initState();
-    _profileStream = context
-        .read<UserProfileProvider>()
-        .getUserProfileStream(widget.user.uid);
+    _profileStream = context.read<UserProfileProvider>().getUserProfileStream(widget.user.uid,);
   }
 
   @override
@@ -75,9 +72,6 @@ class _ProfileLoaderRedirectorState extends State<_ProfileLoaderRedirector> {
         final userProfile = profileSnapshot.data;
         if (userProfile != null && userProfile.isAdmin) {
           return const AdminHomePage();
-        }
-        if (userProfile == null || userProfile.profileCompleted == false) {
-          return const OnboardingPage();
         }
         return const HomePage();
       },
