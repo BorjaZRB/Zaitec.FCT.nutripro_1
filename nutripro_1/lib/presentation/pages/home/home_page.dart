@@ -23,10 +23,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    // StreamController para los datos del usuario
+  
     _streamController = StreamController<Map<String, dynamic>>.broadcast();
 
-    // Datos iniciales (puedes reemplazar esto con los resultados de la encuesta)
+
     _streamController.add({
       "calories": 2000,
       "meals": 3,
@@ -36,7 +36,6 @@ class _HomePageState extends State<HomePage> {
       "monthlyData": [60.0, 70.0, 65.0, 80.0],
     });
 
-    // Inicializamos las páginas
     _pages = [
       DailyMenuPage(),
       ProgressPage(stream: _streamController.stream),
@@ -66,7 +65,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // Función para actualizar los datos desde la encuesta
+  
   void updateUserData(Map<String, dynamic> newData) {
     _streamController.add(newData);
   }
