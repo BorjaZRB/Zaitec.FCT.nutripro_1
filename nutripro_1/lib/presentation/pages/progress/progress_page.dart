@@ -14,7 +14,7 @@ class ProgressPage extends StatelessWidget {
       body: StreamBuilder<Map<String, dynamic>>(
         stream: stream,
         builder: (context, snap) {
-          // Datos por defecto si el stream aún no tiene datos
+   
           final data = snap.data ?? {
             "calories": 2000,
             "meals": 3,
