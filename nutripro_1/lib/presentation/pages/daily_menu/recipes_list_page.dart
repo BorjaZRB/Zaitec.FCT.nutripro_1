@@ -11,6 +11,14 @@ class RecipesListPage extends StatelessWidget {
     {'id': 'r1', 'name': 'Paella',   'file': 'paella.jpg'},
     {'id': 'r2', 'name': 'Tortilla', 'file': 'tortilla.jpg'},
     {'id': 'r3', 'name': 'Gazpacho', 'file': 'gazpacho.jpg'},
+    {'id': 'r4', 'name': 'Ensalada', 'file': 'Ensalada.jpg'},
+    {'id': 'r5', 'name': 'Plato combinado', 'file': 'Platocombinado.jpg'},
+    {'id': 'r6', 'name': 'Yogur', 'file': 'yogur.jpg'},
+    {'id': 'r7', 'name': 'Fruta', 'file': 'Fruta.jpg'},
+    {'id': 'r8', 'name': 'Pollo', 'file': 'Pollo.jpg'},
+    {'id': 'r9', 'name': 'Carne Roja', 'file': 'Carneroja.jpg'},
+
+
   ];
 
   @override
