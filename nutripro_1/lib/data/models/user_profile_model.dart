@@ -8,7 +8,6 @@ class UserProfile {
   final int? exerciseMinutes;
   final double? weight;
   final double? height;
-  final bool profileCompleted;
   final Timestamp createdAt;
   final bool isAdmin;
 
@@ -20,7 +19,6 @@ class UserProfile {
     this.exerciseMinutes,
     this.weight,
     this.height,
-    this.profileCompleted = false,
     required this.createdAt,
     this.isAdmin = false,
   });
@@ -35,7 +33,6 @@ class UserProfile {
       exerciseMinutes: (data['exerciseMinutes'] as num?)?.toInt(),
       weight: (data['weight'] as num?)?.toDouble(),
       height: (data['height'] as num?)?.toDouble(),
-      profileCompleted: data['profileCompleted'] ?? false,
       createdAt: data['createdAt'] ?? Timestamp.now(),
       isAdmin: data['isAdmin'] ?? false,
     );
@@ -50,7 +47,6 @@ class UserProfile {
       'exerciseMinutes': exerciseMinutes,
       'weight': weight,
       'height': height,
-      'profileCompleted': profileCompleted,
       'createdAt': createdAt,
       'isAdmin': isAdmin,
     };
@@ -63,7 +59,6 @@ class UserProfile {
     int? exerciseMinutes,
     double? weight,
     double? height,
-    bool? profileCompleted,
     bool? isAdmin,
   }) {
     return UserProfile(
@@ -74,7 +69,6 @@ class UserProfile {
       exerciseMinutes: exerciseMinutes ?? this.exerciseMinutes,
       weight: weight ?? this.weight,
       height: height ?? this.height,
-      profileCompleted: profileCompleted ?? this.profileCompleted,
       createdAt: createdAt,
       isAdmin: isAdmin ?? this.isAdmin,
     );

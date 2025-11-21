@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/data/models/user_profile_model.dart';
 import 'package:nutripro_1/data/providers/user_profile_provider.dart';
+import 'package:nutripro_1/presentation/pages/admin/admin_user_detail_page.dart';
 import 'package:provider/provider.dart';
 
 class AdminUserListTab extends StatefulWidget {
@@ -65,33 +67,84 @@ class _AdminUserListTabState extends State<AdminUserListTab> {
 
               final allUsers = snapshot.data!;
               final filteredUsers = allUsers.where((user) {
-                final emailMatch = user.email.toLowerCase().contains(_searchQuery);
-                final nameMatch = (user.name ?? '').toLowerCase().contains(_searchQuery);
+                final emailMatch = user.email.toLowerCase().contains(
+                  _searchQuery,
+                );
+                final nameMatch = (user.name ?? '').toLowerCase().contains(
+                  _searchQuery,
+                );
                 return emailMatch || nameMatch;
               }).toList();
 
-              return ListView.builder(
-                itemCount: filteredUsers.length,
-                itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        child: Text(user.isAdmin ? 'A' : 'U'),
-                      ),
-                      title: Text(user.name ?? 'Sin Nombre'),
-                      subtitle: Text(user.email),
-                      trailing: user.isAdmin
-                          ? Chip(
-                              label: Text('Admin', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary)),
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
-                            )
-                          : null,
-                      onTap: () {
-                        // Aquí se podría navegar a una página de detalle/edición
-                      },
-                    ),
+              return StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .snapshots(),
+                builder: (context, docsSnapshot) {
+                  return ListView.builder(
+                    itemCount: filteredUsers.length,
+                    itemBuilder: (context, index) {
+                      final user = filteredUsers[index];
+                      // Find the document ID for this user
+                      String userId = '';
+                      if (docsSnapshot.hasData) {
+                        final docs = docsSnapshot.data!.docs;
+                        if (docs.isNotEmpty) {
+                          try {
+                            final userDoc = docs.firstWhere(
+                              (doc) => doc.get('email') == user.email,
+                            );
+                            userId = userDoc.id;
+                          } catch (e) {
+                            // User document not found
+                            debugPrint(
+                              'User document not found for email: ${user.email}',
+                            );
+                          }
+                        }
+                      }
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            child: Text(user.isAdmin ? 'A' : 'U'),
+                          ),
+                          title: Text(user.name ?? 'Sin Nombre'),
+                          subtitle: Text(user.email),
+                          trailing: user.isAdmin
+                              ? Chip(
+                                  label: Text(
+                                    'Admin',
+                                    style: TextStyle(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSecondary,
+                                    ),
+                                  ),
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                )
+                              : null,
+                          onTap: () {
+                            if (userId.isNotEmpty) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => AdminUserDetailPage(
+                                    userId: userId,
+                                    userProfile: user,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    },
                   );
                 },
               );

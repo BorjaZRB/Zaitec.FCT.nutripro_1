@@ -11,7 +11,6 @@ class RemindersPage extends StatefulWidget {
 class _RemindersPageState extends State<RemindersPage> {
   final NotificationService _notificationService = NotificationService();
   List<Map<String, dynamic>> reminders = [];
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -77,13 +76,11 @@ class _RemindersPageState extends State<RemindersPage> {
         reminders = loadedReminders.isEmpty 
             ? _getDefaultReminders() 
             : loadedReminders;
-        _isLoading = false;
       });
     } catch (e) {
       print('Error al cargar recordatorios: $e');
       setState(() {
         reminders = _getDefaultReminders();
-        _isLoading = false;
       });
     }
     
@@ -119,7 +116,7 @@ class _RemindersPageState extends State<RemindersPage> {
       try {
         await _notificationService.init(null);
       } catch (e) {
-        print('Error al inicializar notificaciones: $e');
+        debugPrint('Error al inicializar notificaciones: $e');
       }
     });
   }
@@ -127,6 +124,7 @@ class _RemindersPageState extends State<RemindersPage> {
   void _showAddReminderDialog() {
     TimeOfDay selectedTime = TimeOfDay.now();
     String reminderTitle = '';
+    // ignore: unused_local_variable
     String reminderBody = '';
     bool isDaily = true;
 

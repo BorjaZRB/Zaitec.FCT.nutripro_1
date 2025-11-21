@@ -37,10 +37,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final profile = context.watch<UserProfileProvider>().getUserProfileStream(user.uid);
+    final profile = context.watch<UserProfileProvider>().getUserProfileStream(
+      user.uid,
+    );
 
     profile.first.then((data) {
-       if (data != null && mounted) {
+      if (data != null && mounted) {
         _currentProfile = data;
         _nameController.text = data.name ?? '';
         _waterController.text = data.waterGoal?.toString() ?? '';
@@ -48,7 +50,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _exerciseController.text = data.exerciseMinutes?.toString() ?? '';
         _weightController.text = data.weight?.toString() ?? '';
         _heightController.text = data.height?.toString() ?? '';
-        
+
         setState(() {
           _isDataLoaded = true;
         });
@@ -87,13 +89,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
         exerciseMinutes: int.tryParse(_exerciseController.text.trim()),
         weight: double.tryParse(_weightController.text.trim()),
         height: double.tryParse(_heightController.text.trim()),
-        profileCompleted: true,
       );
 
       await profileProvider.saveUserProfile(user.uid, updatedProfile);
 
       if (mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Perfil actualizado correctamente.'),
             backgroundColor: Colors.green,
@@ -120,9 +121,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar Perfil'),
-      ),
+      appBar: AppBar(title: const Text('Editar Perfil')),
       body: !_isDataLoaded
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -136,8 +135,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       controller: _nameController,
                       label: 'Nombre',
                       icon: Icons.person,
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo requerido'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -146,28 +146,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       icon: Icons.height,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo requerido'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _weightController,
                       label: 'Peso (kg)',
                       icon: Icons.monitor_weight,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}'),
+                        ),
+                      ],
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo requerido'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _waterController,
                       label: 'Meta de agua (Litros/día)',
                       icon: Icons.water_drop,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}'))],
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,1}'),
+                        ),
+                      ],
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo requerido'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -176,8 +191,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       icon: Icons.restaurant,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo requerido'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -186,8 +202,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       icon: Icons.fitness_center,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Campo requerido' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Campo requerido'
+                          : null,
                     ),
                     const SizedBox(height: 32),
                     _isLoading

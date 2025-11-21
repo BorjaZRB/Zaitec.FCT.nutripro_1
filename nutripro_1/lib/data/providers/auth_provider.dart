@@ -20,18 +20,14 @@ class AuthProvider {
 
   Future<UserCredential> register(String email, String password) async {
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
         String userId = userCredential.user!.uid;
         await _firestore.collection('users').doc(userId).set({
           'email': userCredential.user!.email,
           'createdAt': FieldValue.serverTimestamp(),
-          'profileCompleted': false,
           'isAdmin': false,
         });
       }

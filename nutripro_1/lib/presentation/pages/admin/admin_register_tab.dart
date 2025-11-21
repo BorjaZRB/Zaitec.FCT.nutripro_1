@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,6 +37,12 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _heightController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _waterController = TextEditingController();
+  final _mealsController = TextEditingController();
+  final _exerciseController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _register() async {
@@ -54,52 +61,55 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
 
     setState(() => _isLoading = true);
 
-    // --- LÓGICA DE REGISTRO DE ADMIN (Esta lógica es correcta) ---
-    // Usamos una instancia temporal de Firebase para que no cierre
-    // la sesión del administrador.
-    
     // Genera un nombre único para la app temporal
-    String tempAppName = 'tempRegister-${DateTime.now().millisecondsSinceEpoch}';
+    String tempAppName =
+        'tempRegister-${DateTime.now().millisecondsSinceEpoch}';
 
     try {
       // 1. Inicializa una app de Firebase temporal
-      firebase_core.FirebaseApp tempApp = await firebase_core.Firebase.initializeApp(
-        name: tempAppName,
-        options: firebase_core.Firebase.app().options, // Usa la misma configuración que tu app principal
-      );
+      firebase_core.FirebaseApp tempApp =
+          await firebase_core.Firebase.initializeApp(
+            name: tempAppName,
+            options: firebase_core.Firebase.app().options,
+          );
 
       // 2. Crea una instancia de Auth solo para esa app temporal
       FirebaseAuth tempAuth = FirebaseAuth.instanceFor(app: tempApp);
 
-      // 3. Crea el usuario en la instancia temporal.
-      // Esto NO afectará a tu inicio de sesión de admin en la app principal.
-      UserCredential userCredential =
-          await tempAuth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+      // 3. Crea el usuario en la instancia temporal
+      UserCredential userCredential = await tempAuth
+          .createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
 
-      // 4. Crea el perfil de usuario en Firestore usando la instancia PRINCIPAL
+      // 4. Crea el perfil de usuario en Firestore con TODOS los datos
       if (userCredential.user != null) {
         String userId = userCredential.user!.uid;
-        // Usamos FirebaseFirestore.instance (el principal)
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'email': userCredential.user!.email,
+          'name': _nameController.text.trim(),
+          'height': double.tryParse(_heightController.text.trim()),
+          'weight': double.tryParse(_weightController.text.trim()),
+          'waterGoal': double.tryParse(_waterController.text.trim()),
+          'mealsPerDay': int.tryParse(_mealsController.text.trim()),
+          'exerciseMinutes': int.tryParse(_exerciseController.text.trim()),
           'createdAt': FieldValue.serverTimestamp(),
-          'profileCompleted': false,
           'isAdmin': false,
         });
       }
 
       // 5. Elimina la app temporal
       await tempApp.delete();
-      
+
       debugPrint('Registro exitoso por admin');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Usuario ${_emailController.text} registrado exitosamente.'),
+            content: Text(
+              'Usuario ${_emailController.text} registrado exitosamente.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -108,6 +118,12 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
         _emailController.clear();
         _passwordController.clear();
         _confirmPasswordController.clear();
+        _nameController.clear();
+        _heightController.clear();
+        _weightController.clear();
+        _waterController.clear();
+        _mealsController.clear();
+        _exerciseController.clear();
       }
     } catch (e) {
       debugPrint('Error en registro: $e');
@@ -121,12 +137,13 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
       }
       // Asegúrate de eliminar la app temporal también si hay un error
       try {
-        firebase_core.FirebaseApp tempApp = firebase_core.Firebase.app(tempAppName);
+        firebase_core.FirebaseApp tempApp = firebase_core.Firebase.app(
+          tempAppName,
+        );
         await tempApp.delete();
       } catch (e) {
         debugPrint('Error al limpiar app temporal: $e');
       }
-
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -139,6 +156,12 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _nameController.dispose();
+    _heightController.dispose();
+    _weightController.dispose();
+    _waterController.dispose();
+    _mealsController.dispose();
+    _exerciseController.dispose();
     super.dispose();
   }
 
@@ -170,8 +193,10 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: colorScheme.secondary, width: 2),
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -197,8 +222,10 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: colorScheme.secondary, width: 2),
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -216,15 +243,19 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
                 controller: _confirmPasswordController,
                 decoration: InputDecoration(
                   labelText: 'Confirmar Contraseña',
-                  prefixIcon:
-                      Icon(Icons.lock_outline, color: colorScheme.primary),
+                  prefixIcon: Icon(
+                    Icons.lock_outline,
+                    color: colorScheme.primary,
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: colorScheme.secondary),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: colorScheme.secondary, width: 2),
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -237,11 +268,199 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
                 },
               ),
               const SizedBox(height: 24),
+              Text('Datos del Perfil', style: theme.textTheme.titleMedium),
+              const SizedBox(height: 16),
+              // --- Campo de Nombre ---
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: 'Nombre',
+                  prefixIcon: Icon(Icons.person, color: colorScheme.primary),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo requerido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // --- Campo de Altura ---
+              TextFormField(
+                controller: _heightController,
+                decoration: InputDecoration(
+                  labelText: 'Altura (cm)',
+                  prefixIcon: Icon(Icons.height, color: colorScheme.primary),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo requerido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // --- Campo de Peso ---
+              TextFormField(
+                controller: _weightController,
+                decoration: InputDecoration(
+                  labelText: 'Peso (kg)',
+                  prefixIcon: Icon(
+                    Icons.monitor_weight,
+                    color: colorScheme.primary,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo requerido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // --- Campo de Meta de Agua ---
+              TextFormField(
+                controller: _waterController,
+                decoration: InputDecoration(
+                  labelText: 'Meta de agua (Litros/día)',
+                  prefixIcon: Icon(
+                    Icons.water_drop,
+                    color: colorScheme.primary,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
+                ],
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo requerido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // --- Campo de Comidas por Día ---
+              TextFormField(
+                controller: _mealsController,
+                decoration: InputDecoration(
+                  labelText: 'Comidas por día',
+                  prefixIcon: Icon(
+                    Icons.restaurant,
+                    color: colorScheme.primary,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo requerido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              // --- Campo de Ejercicio ---
+              TextFormField(
+                controller: _exerciseController,
+                decoration: InputDecoration(
+                  labelText: 'Ejercicio (minutos/día)',
+                  prefixIcon: Icon(
+                    Icons.fitness_center,
+                    color: colorScheme.primary,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colorScheme.secondary),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: colorScheme.secondary,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Campo requerido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
               // --- Botón de Registro ---
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(
-                      onPressed: _register, // Llama a la nueva función _register
+                      onPressed: _register,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
