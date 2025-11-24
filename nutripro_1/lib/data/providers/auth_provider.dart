@@ -37,6 +37,17 @@ class AuthProvider {
       rethrow;
     }
   }
+  
+  Future<void> sendPasswordResetEmail(String email) async {
+  try {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    debugPrint('Correo de recuperación enviado a $email');
+  } catch (e) {
+    debugPrint('Error al enviar correo de recuperación: $e');
+    throw Exception('No se pudo enviar el correo de recuperación');
+  }
+}
+
 
   Future<void> signOut() async {
     try {
