@@ -58,10 +58,6 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 16),
 
-                  _buildForgotPasswordLink(),
-
-                  const SizedBox(height: 8),
-
                   _buildRegisterLink(),
 
                   const Spacer(),
@@ -112,6 +108,8 @@ class _LoginPageState extends State<LoginPage> {
             _buildPasswordField(),
             const SizedBox(height: 24),
             _buildLoginButton(),
+            const SizedBox(height: 12),
+            _buildForgotPasswordLink(),
           ],
         ),
       ),
