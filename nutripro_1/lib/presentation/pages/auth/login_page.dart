@@ -153,7 +153,39 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           child: const Text('Iniciar Sesión'),
                         ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 16),
+
+                  TextButton(
+                    onPressed: () async {
+                      final email = _emailController.text.trim();
+                      if (email.isEmpty || !email.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Introduce un correo válido')),
+                        );
+                        return;
+                      }
+
+                      try {
+                        await context.read<AuthProvider>().sendPasswordResetEmail(email);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Correo de recuperación enviado')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e')),
+                        );
+                      }
+                    },
+                    child: const Text(
+                      '¿Has olvidado tu contraseña?',
+                      style: TextStyle(
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
