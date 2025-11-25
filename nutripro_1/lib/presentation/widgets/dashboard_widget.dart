@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 class DashboardWidget extends StatefulWidget {
   final int calories;
   final int meals;
   final double water;
   final double goalsProgress;
-  final List<double> weeklyData;
+  final List<double> weeklyCaloriesData;
+  final List<double> weeklyWaterData;
+  final List<double> weeklyMealsData;
   final List<double> monthlyData;
+  final int goalCalories;
+  final double goalWater;
+  final int goalMeals;
 
   const DashboardWidget({
     super.key,
@@ -15,8 +21,13 @@ class DashboardWidget extends StatefulWidget {
     required this.meals,
     required this.water,
     required this.goalsProgress,
-    required this.weeklyData,
+    required this.weeklyCaloriesData,
+    required this.weeklyWaterData,
+    required this.weeklyMealsData,
     required this.monthlyData,
+    this.goalCalories = 2000,
+    this.goalWater = 8.0,
+    this.goalMeals = 3,
   });
 
   @override
@@ -24,18 +35,12 @@ class DashboardWidget extends StatefulWidget {
 }
 
 class _DashboardWidgetState extends State<DashboardWidget> {
-  bool showWeekly = true;
-
-  String selectedMetric = "calorias"; 
+  String selectedMetric = "calorias";
 
   void _exportPdfMock() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Exportando PDF...",
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Exportando PDF...")));
   }
 
   @override
@@ -43,9 +48,9 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    final bool aguaBaja = widget.water < 4;
-    final bool comidasBajas = widget.meals < 3;
-    final bool caloriasBajas = widget.calories < 1200;
+    final bool aguaBaja = widget.water < (widget.goalWater / 2);
+    final bool comidasBajas = widget.meals < (widget.goalMeals - 1);
+    final bool caloriasBajas = widget.calories < (widget.goalCalories * 0.6);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,7 +139,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                 color: cs.primary,
                 tooltip: "Exportar estadísticas en PDF",
               ),
-              _modeSelector(cs),
             ],
           ),
           const SizedBox(height: 12),
@@ -143,46 +147,6 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       ),
     );
   }
-
-  Widget _modeSelector(ColorScheme cs) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: cs.primary.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          _modeButton("Semanal", showWeekly, () => setState(() => showWeekly = true)),
-          _modeButton("Mensual", !showWeekly, () => setState(() => showWeekly = false)),
-        ],
-      ),
-    );
-  }
-
-  Widget _modeButton(String label, bool selected, VoidCallback onTap) {
-    final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? cs.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? cs.onPrimary : cs.onSurface,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-
-
 
   Widget _metricSelector(ColorScheme cs) {
     return Container(
@@ -226,10 +190,13 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-  
-
-  Widget _statCard(BuildContext context, IconData icon, String title, String value,
-      {String? alerta}) {
+  Widget _statCard(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String value, {
+    String? alerta,
+  }) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -258,9 +225,17 @@ class _DashboardWidgetState extends State<DashboardWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: tt.labelMedium?.copyWith(color: cs.onSurface.withOpacity(0.7))),
+                Text(
+                  title,
+                  style: tt.labelMedium?.copyWith(
+                    color: cs.onSurface.withOpacity(0.7),
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(value, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  value,
+                  style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
                 if (alerta != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
@@ -297,7 +272,10 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Objetivos', style: tt.labelMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            'Objetivos',
+            style: tt.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -321,10 +299,12 @@ class _DashboardWidgetState extends State<DashboardWidget> {
     );
   }
 
-
-
-  Widget _chartCard(BuildContext context,
-      {required String title, required Widget chart, required bool hasData}) {
+  Widget _chartCard(
+    BuildContext context, {
+    required String title,
+    required Widget chart,
+    required bool hasData,
+  }) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -344,11 +324,16 @@ class _DashboardWidgetState extends State<DashboardWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: tt.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 14),
           SizedBox(
             height: 240,
-            child: hasData ? chart : const Center(child: Text("No hay datos aún")),
+            child: hasData
+                ? chart
+                : const Center(child: Text("No hay datos aún")),
           ),
         ],
       ),
@@ -356,53 +341,203 @@ class _DashboardWidgetState extends State<DashboardWidget> {
   }
 
   String _chartTitle() {
-    final period = showWeekly ? "Semanal" : "Mensual";
-
     switch (selectedMetric) {
       case "calorias":
-        return "Calorías ($period)";
+        return "Calorías (Últimos 7 días)";
       case "comidas":
-        return "Comidas ($period)";
+        return "Comidas (Últimos 7 días)";
       case "agua":
-        return "Agua ($period)";
+        return "Agua (Últimos 7 días)";
       default:
-        return "Estadísticas ($period)";
+        return "Estadísticas (Últimos 7 días)";
     }
   }
 
   bool _hasChartData() {
-    return (showWeekly ? widget.weeklyData : widget.monthlyData).isNotEmpty;
+    return _getDataForMetric().isNotEmpty;
+  }
+
+  Map<String, dynamic> _getGoalForMetric() {
+    switch (selectedMetric) {
+      case "calorias":
+        return {'value': widget.goalCalories.toDouble(), 'color': Colors.red};
+      case "agua":
+        return {'value': widget.goalWater, 'color': Colors.blue};
+      case "comidas":
+        return {'value': widget.goalMeals.toDouble(), 'color': Colors.amber};
+      default:
+        return {'value': 0.0, 'color': Colors.grey};
+    }
+  }
+
+  List<double> _getDataForMetric() {
+    switch (selectedMetric) {
+      case "calorias":
+        return widget.weeklyCaloriesData;
+      case "agua":
+        return widget.weeklyWaterData;
+      case "comidas":
+        return widget.weeklyMealsData;
+      default:
+        return [];
+    }
+  }
+
+  double _calculateMaxY(List<double> data, double goalValue) {
+    if (data.isEmpty) return goalValue * 1.2;
+    final maxData = data.reduce((a, b) => a > b ? a : b);
+    final maxVal = maxData > goalValue ? maxData : goalValue;
+    return maxVal * 1.2; // 20% más que el máximo para dar espacio
+  }
+
+  List<BarChartGroupData> _buildBarGroups(List<double> data, Color barColor) {
+    return data.asMap().entries.map((entry) {
+      final value = entry.value;
+      final hasData = value > 0;
+
+      return BarChartGroupData(
+        x: entry.key,
+        barRods: [
+          BarChartRodData(
+            toY: hasData
+                ? value
+                : 0, // Altura mínima visible para días sin datos
+            color: hasData ? barColor : barColor.withOpacity(0.2),
+            width: 16,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(6),
+              topRight: Radius.circular(6),
+            ),
+          ),
+        ],
+      );
+    }).toList();
   }
 
   Widget _selectedChart(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final goal = _getGoalForMetric();
+    var data = _getDataForMetric();
+    final barColor = goal['color'] as Color;
+    final goalValue = goal['value'] as double;
 
-  
-    final List<double> data =
-        showWeekly ? widget.weeklyData : widget.monthlyData;
+    // Si no hay datos, mostrar mensaje amigable
+    if (data.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bar_chart,
+              size: 48,
+              color: cs.onSurface.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Aún no hay registros esta semana',
+              style: TextStyle(color: cs.onSurface.withOpacity(0.6)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Empieza a registrar tus hábitos',
+              style: TextStyle(
+                fontSize: 12,
+                color: cs.onSurface.withOpacity(0.4),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
-    final spots = data.asMap().entries
-        .map((e) => FlSpot(e.key.toDouble(), e.value))
-        .toList();
+    // Asegurar que siempre hay 7 elementos (completar con 0s si faltan)
+    while (data.length < 7) {
+      data.add(0.0);
+    }
 
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            barWidth: 3,
-            dotData: FlDotData(show: false),
-            color: cs.primary,
-            belowBarData: BarAreaData(
-              show: true,
-              color: cs.primary.withOpacity(0.2),
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: _calculateMaxY(data, goalValue),
+        barGroups: _buildBarGroups(data, barColor),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: goalValue / 2,
+          getDrawingHorizontalLine: (value) {
+            return FlLine(color: cs.onSurface.withOpacity(0.1), strokeWidth: 1);
+          },
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              interval: selectedMetric == 'comidas' ? 1 : null,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                  value.toInt().toString(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: cs.onSurface.withOpacity(0.6),
+                  ),
+                );
+              },
             ),
           ),
-        ],
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index >= 0 && index < 7) {
+                  final date = DateTime.now().subtract(
+                    Duration(days: 6 - index),
+                  );
+                  final dayName = DateFormat('E', 'es_ES').format(date);
+                  final label = dayName.substring(0, 1).toUpperCase();
+
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  );
+                }
+                return const Text('');
+              },
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        extraLinesData: ExtraLinesData(
+          horizontalLines: [
+            HorizontalLine(
+              y: goalValue,
+              color: cs.primary,
+              strokeWidth: 2,
+              dashArray: [5, 5],
+              label: HorizontalLineLabel(
+                show: true,
+                alignment: Alignment.topLeft,
+                padding: const EdgeInsets.only(left: 4, bottom: 4),
+                style: TextStyle(
+                  color: cs.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+                labelResolver: (line) => 'Objetivo: ${line.y.toInt()}',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

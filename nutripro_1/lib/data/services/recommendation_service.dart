@@ -10,9 +10,9 @@ class RecommendationService {
 
   Future<void> analyzeUserData(
     String userId,
-    List<QueryDocumentSnapshot> trackingDocs,
+    List<Map<String, dynamic>> trackingRecords,
   ) async {
-    debugPrint('Iniciando análisis de ${trackingDocs.length} registros...');
+    debugPrint('Iniciando análisis de ${trackingRecords.length} registros...');
 
     final Map<String, List<Map<String, dynamic>>> groupedData = {
       'hidratacion': [],
@@ -20,8 +20,7 @@ class RecommendationService {
       'habitos': [],
     };
 
-    for (var doc in trackingDocs) {
-      final data = doc.data() as Map<String, dynamic>;
+    for (var data in trackingRecords) {
       final type = data['habit_type'];
       if (groupedData.containsKey(type)) {
         groupedData[type]!.add(data);
@@ -30,18 +29,20 @@ class RecommendationService {
 
     await _analyzeHydration(userId, groupedData['hidratacion']!);
     await _analyzeNutrition(userId, groupedData['alimentacion']!);
-    
+
     debugPrint('Análisis completado.');
   }
 
   Future<void> _analyzeHydration(
-      String userId, List<Map<String, dynamic>> hydrationData) async {
+    String userId,
+    List<Map<String, dynamic>> hydrationData,
+  ) async {
     // ---- EJEMPLO DE LÓGICA REAL (Comentada) ----
     // if (hydrationData.isEmpty) return;
     // double totalML = 0;
     // hydrationData.forEach((data) => totalML += (data['value'] as int));
     // double averageML = totalML / hydrationData.length; // O dividir por días únicos
-    
+
     // if (averageML < 1500) { ... }
     // ---- FIN LÓGICA REAL ----
 
@@ -61,7 +62,9 @@ class RecommendationService {
   }
 
   Future<void> _analyzeNutrition(
-      String userId, List<Map<String, dynamic>> nutritionData) async {
+    String userId,
+    List<Map<String, dynamic>> nutritionData,
+  ) async {
     if (nutritionData.isEmpty) {
       final rec = Recommendation(
         id: '',

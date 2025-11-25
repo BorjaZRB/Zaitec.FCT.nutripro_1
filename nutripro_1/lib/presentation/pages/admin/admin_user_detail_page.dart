@@ -166,10 +166,10 @@ class AdminUserDetailPage extends StatelessWidget {
                       userProfile.mealsPerDay?.toString() ?? 'N/A',
                     ),
                     _buildInfoRow(
-                      Icons.fitness_center,
-                      'Ejercicio',
-                      userProfile.exerciseMinutes != null
-                          ? '${userProfile.exerciseMinutes} min/día'
+                      Icons.local_fire_department,
+                      'Calorías objetivo',
+                      userProfile.calorieGoal != null
+                          ? '${userProfile.calorieGoal} kcal/día'
                           : 'N/A',
                     ),
                   ],
@@ -187,7 +187,9 @@ class AdminUserDetailPage extends StatelessWidget {
               meals: userProfile.mealsPerDay ?? 3,
               water: userProfile.waterGoal ?? 2.0,
               goalsProgress: 0.7,
-              weeklyData: [50.0, 60.0, 55.0, 70.0, 65.0, 75.0, 80.0],
+              weeklyCaloriesData: [1800, 2100, 1950, 2200, 1900, 2050, 2100],
+              weeklyWaterData: [7.0, 8.0, 6.5, 8.5, 7.5, 8.0, 7.0],
+              weeklyMealsData: [3.0, 3.0, 2.0, 3.0, 3.0, 4.0, 3.0],
               monthlyData: [60.0, 70.0, 65.0, 80.0],
             ),
           ],

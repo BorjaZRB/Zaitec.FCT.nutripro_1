@@ -42,7 +42,7 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
   final _weightController = TextEditingController();
   final _waterController = TextEditingController();
   final _mealsController = TextEditingController();
-  final _exerciseController = TextEditingController();
+  final _calorieGoalController = TextEditingController();
   bool _isLoading = false;
 
   Future<void> _register() async {
@@ -93,7 +93,7 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
           'weight': double.tryParse(_weightController.text.trim()),
           'waterGoal': double.tryParse(_waterController.text.trim()),
           'mealsPerDay': int.tryParse(_mealsController.text.trim()),
-          'exerciseMinutes': int.tryParse(_exerciseController.text.trim()),
+          'calorieGoal': int.tryParse(_calorieGoalController.text.trim()),
           'createdAt': FieldValue.serverTimestamp(),
           'isAdmin': false,
         });
@@ -123,7 +123,7 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
         _weightController.clear();
         _waterController.clear();
         _mealsController.clear();
-        _exerciseController.clear();
+        _calorieGoalController.clear();
       }
     } catch (e) {
       debugPrint('Error en registro: $e');
@@ -161,7 +161,7 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
     _weightController.dispose();
     _waterController.dispose();
     _mealsController.dispose();
-    _exerciseController.dispose();
+    _calorieGoalController.dispose();
     super.dispose();
   }
 
@@ -425,13 +425,13 @@ class _RegisterUserFormState extends State<_RegisterUserForm> {
                 },
               ),
               const SizedBox(height: 16),
-              // --- Campo de Ejercicio ---
+              // --- Campo de Calorías Objetivo ---
               TextFormField(
-                controller: _exerciseController,
+                controller: _calorieGoalController,
                 decoration: InputDecoration(
-                  labelText: 'Ejercicio (minutos/día)',
+                  labelText: 'Calorías objetivo (kcal/día)',
                   prefixIcon: Icon(
-                    Icons.fitness_center,
+                    Icons.local_fire_department,
                     color: colorScheme.primary,
                   ),
                   enabledBorder: OutlineInputBorder(

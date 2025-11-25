@@ -1,10 +1,9 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/presentation/pages/config/conf_page.dart';
 import 'package:nutripro_1/presentation/pages/profile/profile_page.dart';
 import 'package:nutripro_1/presentation/pages/daily_menu/daily_menu_page.dart';
 import 'package:nutripro_1/presentation/pages/progress/progress_page.dart';
-import 'package:nutripro_1/presentation/pages/traking/tracking_page.dart';
+import 'package:nutripro_1/presentation/pages/tracking/tracking_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,29 +15,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 2;
 
-  late StreamController<Map<String, dynamic>> _streamController;
   late List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
 
-  
-    _streamController = StreamController<Map<String, dynamic>>.broadcast();
-
-
-    _streamController.add({
-      "calories": 2000,
-      "meals": 3,
-      "water": 3,
-      "goalsProgress": 0.5,
-      "weeklyData": [50.0, 60.0, 55.0, 70.0, 65.0, 75.0, 80.0],
-      "monthlyData": [60.0, 70.0, 65.0, 80.0],
-    });
-
     _pages = [
       DailyMenuPage(),
-      ProgressPage(stream: _streamController.stream),
+      ProgressPage(),
       TrackingPage(),
       ProfilePage(),
       ConfPage(),
@@ -48,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   static const List<String> _titles = <String>[
     'Menú Diario',
     'Progreso',
-    'Home',
+    '',
     'Perfil',
     'Configuración',
   ];
@@ -61,13 +46,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _streamController.close();
     super.dispose();
-  }
-
-  
-  void updateUserData(Map<String, dynamic> newData) {
-    _streamController.add(newData);
   }
 
   @override

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:nutripro_1/firebase_options.dart';
 import 'presentation/app.dart';
 import 'package:nutripro_1/services/notification_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es_ES', null);
 
   try {
     await Firebase.initializeApp(
@@ -26,13 +28,13 @@ void _initializeNotifications() {
   Future.microtask(() async {
     try {
       final NotificationService notificationService = NotificationService();
-      
+
       // 1. Inicializar el servicio
       await notificationService.init(null);
-      
+
       // 2. Solicitar permisos (sin esperar bloqueante)
       await notificationService.requestNotificationPermissions();
-      
+
       // 3. Programar recordatorios de prueba
       await notificationService.scheduleDailyReminder(
         300,
@@ -42,7 +44,7 @@ void _initializeNotifications() {
         30,
       );
       await notificationService.scheduleHourlyReminder();
-      
+
       print('✓ Notificaciones inicializadas correctamente');
     } catch (e) {
       print('⚠ Error al inicializar notificaciones: $e');

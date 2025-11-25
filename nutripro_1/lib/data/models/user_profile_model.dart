@@ -5,7 +5,7 @@ class UserProfile {
   final String? name;
   final double? waterGoal;
   final int? mealsPerDay;
-  final int? exerciseMinutes;
+  final int? calorieGoal;
   final double? weight;
   final double? height;
   final Timestamp createdAt;
@@ -16,7 +16,7 @@ class UserProfile {
     this.name,
     this.waterGoal,
     this.mealsPerDay,
-    this.exerciseMinutes,
+    this.calorieGoal,
     this.weight,
     this.height,
     required this.createdAt,
@@ -30,7 +30,7 @@ class UserProfile {
       name: data['name'],
       waterGoal: (data['waterGoal'] as num?)?.toDouble(),
       mealsPerDay: (data['mealsPerDay'] as num?)?.toInt(),
-      exerciseMinutes: (data['exerciseMinutes'] as num?)?.toInt(),
+      calorieGoal: (data['calorieGoal'] as num?)?.toInt(),
       weight: (data['weight'] as num?)?.toDouble(),
       height: (data['height'] as num?)?.toDouble(),
       createdAt: data['createdAt'] ?? Timestamp.now(),
@@ -44,7 +44,7 @@ class UserProfile {
       'name': name,
       'waterGoal': waterGoal,
       'mealsPerDay': mealsPerDay,
-      'exerciseMinutes': exerciseMinutes,
+      'calorieGoal': calorieGoal,
       'weight': weight,
       'height': height,
       'createdAt': createdAt,
@@ -56,7 +56,7 @@ class UserProfile {
     String? name,
     double? waterGoal,
     int? mealsPerDay,
-    int? exerciseMinutes,
+    int? calorieGoal,
     double? weight,
     double? height,
     bool? isAdmin,
@@ -66,7 +66,7 @@ class UserProfile {
       name: name ?? this.name,
       waterGoal: waterGoal ?? this.waterGoal,
       mealsPerDay: mealsPerDay ?? this.mealsPerDay,
-      exerciseMinutes: exerciseMinutes ?? this.exerciseMinutes,
+      calorieGoal: calorieGoal ?? this.calorieGoal,
       weight: weight ?? this.weight,
       height: height ?? this.height,
       createdAt: createdAt,

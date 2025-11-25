@@ -21,7 +21,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _nameController = TextEditingController();
   final _waterController = TextEditingController();
   final _mealsController = TextEditingController();
-  final _exerciseController = TextEditingController();
+  final _calorieGoalController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
 
@@ -47,7 +47,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _nameController.text = data.name ?? '';
         _waterController.text = data.waterGoal?.toString() ?? '';
         _mealsController.text = data.mealsPerDay?.toString() ?? '';
-        _exerciseController.text = data.exerciseMinutes?.toString() ?? '';
+        _calorieGoalController.text = data.calorieGoal?.toString() ?? '';
         _weightController.text = data.weight?.toString() ?? '';
         _heightController.text = data.height?.toString() ?? '';
 
@@ -63,7 +63,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _nameController.dispose();
     _waterController.dispose();
     _mealsController.dispose();
-    _exerciseController.dispose();
+    _calorieGoalController.dispose();
     _weightController.dispose();
     _heightController.dispose();
     super.dispose();
@@ -86,7 +86,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         name: _nameController.text.trim(),
         waterGoal: double.tryParse(_waterController.text.trim()),
         mealsPerDay: int.tryParse(_mealsController.text.trim()),
-        exerciseMinutes: int.tryParse(_exerciseController.text.trim()),
+        calorieGoal: int.tryParse(_calorieGoalController.text.trim()),
         weight: double.tryParse(_weightController.text.trim()),
         height: double.tryParse(_heightController.text.trim()),
       );
@@ -197,9 +197,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
-                      controller: _exerciseController,
-                      label: 'Ejercicio (minutos/día)',
-                      icon: Icons.fitness_center,
+                      controller: _calorieGoalController,
+                      label: 'Calorías objetivo (kcal/día)',
+                      icon: Icons.local_fire_department,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (value) => value == null || value.isEmpty
