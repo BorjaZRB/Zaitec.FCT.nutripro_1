@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   static const List<String> _titles = <String>[
-    'Menú Diario',
+    '',
     'Progreso',
     '',
     'Perfil',

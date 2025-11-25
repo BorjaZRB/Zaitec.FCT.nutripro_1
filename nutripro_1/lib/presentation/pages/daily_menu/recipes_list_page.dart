@@ -8,7 +8,7 @@ class RecipesListPage extends StatelessWidget {
 
   // Demo: datos locales. Si luego quieres, los lees de Firestore.
   static const items = [
-    {'id': 'r1', 'name': 'Paella',   'file': 'paella.jpg'},
+    {'id': 'r1', 'name': 'Paella', 'file': 'paella.jpg'},
     {'id': 'r2', 'name': 'Tortilla', 'file': 'tortilla.jpg'},
     {'id': 'r3', 'name': 'Gazpacho', 'file': 'gazpacho.jpg'},
     {'id': 'r4', 'name': 'Ensalada', 'file': 'Ensalada.jpg'},
@@ -16,7 +16,7 @@ class RecipesListPage extends StatelessWidget {
     {'id': 'r6', 'name': 'Yogur', 'file': 'yogur.jpg'},
     {'id': 'r7', 'name': 'Fruta', 'file': 'Fruta.jpg'},
     {'id': 'r8', 'name': 'Pollo', 'file': 'Pollo.jpg'},
-    {'id': 'r9', 'name': 'Carne Roja', 'file': 'Carneroja.jpg'}
+    {'id': 'r9', 'name': 'Carne Roja', 'file': 'Carneroja.jpg'},
   ];
 
   @override
@@ -32,14 +32,23 @@ class RecipesListPage extends StatelessWidget {
           final url = '${ImageHosts.base}${r['file']}';
           return ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: NetImage(url,
-              width: 72, height: 72, radius: BorderRadius.circular(12), heroTag: r['id']),
+            leading: NetImage(
+              url,
+              width: 72,
+              height: 72,
+              radius: BorderRadius.circular(12),
+              heroTag: r['id'],
+            ),
             title: Text(r['name']!),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => RecipeDetailPage(
-                  id: r['id']!, name: r['name']!, imageUrl: url,
+                  id: r['id']!,
+                  name: r['name']!,
+                  imageUrl: url,
+                  ingredients: const [],
+                  preparation: '',
                 ),
               ),
             ),

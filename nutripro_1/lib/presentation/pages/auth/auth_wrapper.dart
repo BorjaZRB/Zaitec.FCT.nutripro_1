@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:nutripro_1/data/models/user_profile_model.dart';
@@ -35,6 +36,7 @@ class AuthWrapper extends StatelessWidget {
     );
   }
 }
+
 class _ProfileLoaderRedirector extends StatefulWidget {
   const _ProfileLoaderRedirector({super.key, required this.user});
   final User user;
@@ -45,36 +47,43 @@ class _ProfileLoaderRedirector extends StatefulWidget {
 }
 
 class _ProfileLoaderRedirectorState extends State<_ProfileLoaderRedirector> {
-  late final Stream<UserProfile?> _profileStream;
+  StreamSubscription<UserProfile?>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _profileStream = context.read<UserProfileProvider>().getUserProfileStream(widget.user.uid,);
+    final provider = context.read<UserProfileProvider>();
+    _subscription = provider
+        .getUserProfileStream(widget.user.uid)
+        .listen(
+          (profile) {
+            if (mounted) {
+              provider.setUserProfile(profile);
+            }
+          },
+          onError: (error) {
+            debugPrint('Error loading profile: $error');
+          },
+        );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<UserProfile?>(
-      stream: _profileStream,
-      builder: (context, profileSnapshot) {
-        if (profileSnapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (profileSnapshot.hasError) {
-          return const Scaffold(
-            body: Center(child: Text('Error al cargar el perfil.')),
-          );
-        }
+    final userProfile = context.watch<UserProfileProvider>().userProfile;
 
-        final userProfile = profileSnapshot.data;
-        if (userProfile != null && userProfile.isAdmin) {
-          return const AdminHomePage();
-        }
-        return const HomePage();
-      },
-    );
+    if (userProfile == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (userProfile.isAdmin) {
+      return const AdminHomePage();
+    }
+    return const HomePage();
   }
 }

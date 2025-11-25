@@ -20,21 +20,36 @@ class NetImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final core = CachedNetworkImage(
-      imageUrl: url,
-      width: width,
-      height: height,
-      fit: fit,
-      placeholder: (_, __) => const SizedBox(
-        width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2),
-      ),
-      errorWidget: (_, __, ___) => const Icon(Icons.broken_image),
-      fadeInDuration: const Duration(milliseconds: 250),
-      memCacheWidth: width?.toInt(),
-      memCacheHeight: height?.toInt(),
-    );
+    Widget core;
+    if (url.startsWith('http')) {
+      core = CachedNetworkImage(
+        imageUrl: url,
+        width: width,
+        height: height,
+        fit: fit,
+        placeholder: (_, __) => const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+        errorWidget: (_, __, ___) => const Icon(Icons.broken_image),
+        fadeInDuration: const Duration(milliseconds: 250),
+        memCacheWidth: width?.toInt(),
+        memCacheHeight: height?.toInt(),
+      );
+    } else {
+      core = Image.asset(
+        url,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      );
+    }
 
-    Widget child = radius != null ? ClipRRect(borderRadius: radius!, child: core) : core;
+    Widget child = radius != null
+        ? ClipRRect(borderRadius: radius!, child: core)
+        : core;
     if (heroTag != null) child = Hero(tag: heroTag!, child: child);
     return child;
   }

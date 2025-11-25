@@ -10,6 +10,11 @@ class UserProfileProvider with ChangeNotifier {
   UserProfile? _userProfile;
   UserProfile? get userProfile => _userProfile;
 
+  void setUserProfile(UserProfile? profile) {
+    _userProfile = profile;
+    notifyListeners();
+  }
+
   Stream<UserProfile?> getUserProfileStream(String uid) {
     return _firestore.collection('users').doc(uid).snapshots().map((snapshot) {
       if (snapshot.exists) {
